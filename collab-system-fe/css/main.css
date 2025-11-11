@@ -1,0 +1,26 @@
+/* Global style used across all pages */
+body {
+  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  background-color: #f7f9fc;
+  color: #1d1d1f;
+  margin: 0;
+}
+
+/* Global button style */
+.btn-primary {
+  background-color: #2f7df6;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1e6ee4;
+}
+
+/* Consistent card style for all pages */
+.card, .login-card {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
