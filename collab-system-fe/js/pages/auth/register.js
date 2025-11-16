@@ -1,4 +1,4 @@
-import { register as apiRegister } from "../api/auth.js"; // rename to avoid name clash
+import { register as apiRegister } from "../../../api/auth.js"; // rename to avoid name clash
 
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
   e.preventDefault(); // Prevent reload

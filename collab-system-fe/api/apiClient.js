@@ -1,12 +1,12 @@
-// --- Base API client for all fetch calls ---
-const API_BASE = "/api"; // relative to backend
+// Base API prefix
+const API_BASE = "/api";
 
-// Helper to get token
+// Helper to read token
 function getToken() {
   return localStorage.getItem("token");
 }
 
-// Generic GET request with auth header
+// --- Generic GET Request ---
 export async function apiGet(path) {
   const token = getToken();
 
@@ -18,18 +18,16 @@ export async function apiGet(path) {
   });
 
   if (res.status === 401) {
-    // Token invalid/expired — redirect to login
     localStorage.removeItem("token");
-    window.location.href = "login.html";
     return;
   }
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "API error");
+  if (!res.ok) throw new Error(data.message || "API GET Error");
   return data;
 }
 
-// Generic POST request (with body)
+// --- Generic POST Request ---
 export async function apiPost(path, body) {
   const token = getToken();
 
@@ -43,6 +41,38 @@ export async function apiPost(path, body) {
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "API error");
+  if (!res.ok) throw new Error(data.message || "API POST Error");
   return data;
 }
+
+// --- Generic DELETE Request ---
+export async function apiDelete(path) {
+  const token = getToken();
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "DELETE",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "API DELETE Error");
+  return data;
+}
+
+export async function apiPut(path, body) {
+  const token = getToken();
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "API PUT Error");
+  return data;
+}
+

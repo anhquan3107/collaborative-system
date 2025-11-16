@@ -2,9 +2,7 @@ import http from "http";
 import { Server } from "socket.io";
 import app from "./app.js";
 import pool from "./config/database.js";
-import { initWhiteboardSocket } from "./sockets/whiteboardSocket.js";
-import { initEditorSocket } from "./sockets/editorSocket.js";
-import { initChatSocket } from "./sockets/chatSocket.js";
+import { initDocumentSocket } from "./sockets/documentSocket.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -28,14 +26,9 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("🟢 User connected:", socket.id);
-
-  // Listen for the test event from client
-  socket.on("testEvent", (data) => {
-    console.log("📨 Received from client:", data);
-
-    // Send back a reply
-    socket.emit("serverResponse", { message: "Hello back from server!" });
-  });
+  
+  // Initialize document collaboration sockets
+  initDocumentSocket(io, socket);
 
   socket.on("disconnect", () => {
     console.log("🔴 User disconnected:", socket.id);

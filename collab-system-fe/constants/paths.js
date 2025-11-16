@@ -1,20 +1,19 @@
 // Centralized API path definitions
 export const paths = {
-  api: {
-    base: "/api",  // base API prefix
     auth: {
-      base: "/auth",
       register: "/auth/register",
       login: "/auth/login",
     },
     user: {
-      me: "/me",  // /api/me
+      me: "/user/me",
     },
     projects: {
-      base: "/projects",
-      list: "/projects",       // GET
-      create: "/projects",     // POST
-      detail: (id) => `/projects/${id}`,  // dynamic route example
+      list: "/projects",
+      create: "/projects",
+      detail: (id) => `/projects/${id}`,
     },
-  },
+    documents: {
+      list: (projectId) => `/projects/${projectId}/documents`,
+      detail: (projectId, docId) => `/projects/${projectId}/documents/${docId}`,
+    },
 };

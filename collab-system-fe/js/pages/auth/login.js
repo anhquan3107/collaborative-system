@@ -1,4 +1,4 @@
-import { login } from "../api/auth.js"; // Use our API module
+import { login } from "../../../api/auth.js"; // Use our API module
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault(); // Stop default form behavior
