@@ -1,10 +1,13 @@
 // frontend/js/pages/projectWorkspace.js - ADD DEBUGGING
 import { listDocuments, createDocument, getDocument, saveDocument } from "../../../../api/document.js";
 import { inviteToProject } from "../../../../api/invitation.js";
+import { getProjectMembers } from "../../../../api/project.js";
+
 
 const urlParams = new URLSearchParams(window.location.search);
 const projectId = urlParams.get('projectId');
 const projectName = urlParams.get('projectName') || 'Untitled';
+let projectMembers = []; 
 
 let currentDocId = null;
 let socket = null;
@@ -26,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('projectName').textContent = projectName;
     initializeSocket();
     loadDocuments();
+    loadMembers();
     setupEventListeners();
 });
 
@@ -254,6 +258,30 @@ function setupEventListeners() {
         }
     });
 
+    document.getElementById('viewMembersBtn')?.addEventListener('click', () => {
+        const listContainer = document.getElementById('projectMembersList');
+        $('#projectMembersModal').modal('show');
+
+        if (projectMembers.length === 0) {
+            listContainer.innerHTML = '<div class="p-3 text-muted">No members found</div>';
+            return;
+        }
+
+        // Render the list (already loaded in memory!)
+        listContainer.innerHTML = projectMembers.map(m => `
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-user-circle text-gray-400 mr-2"></i>
+                    <span class="font-weight-bold">${m.username}</span>
+                    <div class="small text-muted ml-4">${m.email}</div>
+                </div>
+                <span class="badge badge-${m.role === 'owner' ? 'primary' : 'secondary'}">
+                    ${m.role}
+                </span>
+            </div>
+        `).join('');
+    });
+
     // Save document
     document.getElementById('saveDocBtn').addEventListener('click', saveCurrentDocument);
 
@@ -387,3 +415,18 @@ function checkAuth() {
     return true;
 }
 
+async function loadMembers() {
+    try {
+        const data = await getProjectMembers(projectId);
+        projectMembers = data.members || [];
+        
+        // Update the button text
+        const countSpan = document.getElementById('memberCountBadge');
+        if (countSpan) {
+            countSpan.textContent = `${projectMembers.length} Members`;
+        }
+        
+    } catch (err) {
+        console.error("Failed to load members:", err);
+    }
+}

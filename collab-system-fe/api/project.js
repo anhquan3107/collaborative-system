@@ -15,3 +15,7 @@ export function createProject(name, description = "") {
 export function deleteProject(id) {
   return apiDelete(paths.projects.detail(id));
 }
+
+export function getProjectMembers(projectId) {
+  return apiGet(paths.projects.members(projectId));
+}
