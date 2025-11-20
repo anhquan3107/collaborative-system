@@ -1,5 +1,6 @@
 // frontend/js/pages/projectWorkspace.js - ADD DEBUGGING
 import { listDocuments, createDocument, getDocument, saveDocument } from "../../../../api/document.js";
+import { inviteToProject } from "../../../../api/invitation.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const projectId = urlParams.get('projectId');
@@ -12,6 +13,10 @@ let isReceivingRemoteUpdate = false;
 
 // Initialize the workspace
 document.addEventListener('DOMContentLoaded', function() {
+    if (!checkAuth()) {
+        return;
+    }
+
     if (!projectId) {
         alert('Project ID missing from URL');
         return;
@@ -234,7 +239,6 @@ function setupEventListeners() {
         }
 
         try {
-            console.log('📝 Creating document:', title);
             const result = await createDocument(projectId, title);
             console.log('✅ Document created:', result);
             
@@ -287,6 +291,32 @@ function setupEventListeners() {
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
             e.preventDefault();
             saveCurrentDocument();
+        }
+    });
+
+
+     document.getElementById('inviteBtn').addEventListener('click', () => {
+        $('#inviteModal').modal('show');
+    });
+
+    document.getElementById('inviteSubmit').addEventListener('click', async () => {
+        const email = document.getElementById('inviteEmail').value.trim();
+        const role = document.getElementById('inviteRole').value;
+
+        if (!email) {
+            alert('Email is required');
+            return;
+        }
+
+        try {
+            const result = await inviteToProject(projectId, email, role);
+            alert('Invitation sent successfully!');
+            $('#inviteModal').modal('hide');
+            document.getElementById('inviteEmail').value = '';
+            
+        } catch (err) {
+            console.error('Failed to send invitation:', err);
+            alert('Failed to send invitation: ' + err.message);
         }
     });
 }
@@ -346,3 +376,14 @@ window.testRealTime = function() {
         patch: testMessage
     });
 };
+
+function checkAuth() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert('Please log in first');
+        window.location.href = '/login.html';
+        return false;
+    }
+    return true;
+}
+

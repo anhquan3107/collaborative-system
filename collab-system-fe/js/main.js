@@ -1,4 +1,5 @@
 import { getCurrentUser } from "../api/user.js";
+import './pages/invitation/invitationManager.js';
 
 (async () => {
   const token = localStorage.getItem("token");

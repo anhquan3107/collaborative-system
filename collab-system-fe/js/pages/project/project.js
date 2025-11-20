@@ -45,6 +45,10 @@ createSubmit?.addEventListener("click", async () => {
         alert("Failed to create project");
     }
 });
+    window.addEventListener('project:joined', () => {
+        console.log("🔔 Invitation accepted, refreshing project list...");
+        loadProjects();
+    });
 
 // --------------------
 // Load Projects on Page

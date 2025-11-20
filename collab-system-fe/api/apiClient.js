@@ -1,4 +1,3 @@
-// Base API prefix
 const API_BASE = "/api";
 
 // Helper to read token
