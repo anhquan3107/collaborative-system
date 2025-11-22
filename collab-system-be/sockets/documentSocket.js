@@ -1,81 +1,94 @@
-// backend/sockets/documentSocket.js - FIXED BROADCAST
 import { updateDocumentContent } from "../models/documentModel.js";
 
-export function initDocumentSocket(io, socket) {
-    console.log(`🟢 Document sockets initialized for: ${socket.id}`);
+// ✅ STYLE A: Function only takes 'io'
+export function initDocumentSocket(io) {
+    
+    // ✅ The function sets up its own connection listener
+    io.on("connection", (socket) => {
+        console.log(`🟢 Document sockets initialized for: ${socket.id}`);
 
-    // join a document room
-    socket.on("join_document", ({ docId }) => {
-        const room = `document_${docId}`;
-        socket.join(room);
-        console.log(`✅ Socket ${socket.id} joined ${room}`);
-        
-        // Debug: Count users in room
-        const roomSize = io.sockets.adapter.rooms.get(room)?.size || 0;
-        console.log(`👥 Room ${room} now has ${roomSize} users`);
-    });
-
-    // leave a document room
-    socket.on("leave_document", ({ docId }) => {
-        const room = `document_${docId}`;
-        socket.leave(room);
-        console.log(`🚪 Socket ${socket.id} left ${room}`);
-    });
-
-    // 🚨 FIX: live edit content - BROADCAST TO ALL IN ROOM INCLUDING SENDER
-    socket.on("edit_document", ({ docId, patch }) => {
-        const room = `document_${docId}`;
-        
-        console.log(`📨 Received edit_document from ${socket.id}:`, {
-            room: room,
-            docId: docId,
-            patchLength: patch?.length,
-            patchPreview: patch?.substring(0, 50) + '...'
+        // 1. Join a document room
+        socket.on("join_document", ({ docId }) => {
+            const room = `document_${docId}`;
+            socket.join(room);
+            console.log(`✅ Socket ${socket.id} joined ${room}`);
+            
+            // Debug: Count users in room
+            const roomSize = io.sockets.adapter.rooms.get(room)?.size || 0;
+            console.log(`👥 Room ${room} now has ${roomSize} users`);
         });
 
-        // 🚨 CRITICAL FIX: Use io.to(room).emit() instead of socket.to(room).emit()
-        // This broadcasts to ALL clients in the room INCLUDING the sender
-        io.to(room).emit("document_patch", { 
-            docId: docId, 
-            patch: patch,
-            fromSocketId: socket.id // For debugging
+        // 2. Leave a document room
+        socket.on("leave_document", ({ docId }) => {
+            const room = `document_${docId}`;
+            socket.leave(room);
+            console.log(`🚪 Socket ${socket.id} left ${room}`);
         });
 
-        console.log(`📤 Broadcasted to room ${room}`);
-    });
-
-    // cursor/selection updates
-    socket.on("cursor_document", ({ docId, cursor }) => {
-        const room = `document_${docId}`;
-        socket.to(room).emit("document_cursor", { socketId: socket.id, cursor });
-    });
-
-    // explicit save (client triggers)
-    socket.on("save_document", async ({ docId, content }) => {
-        try {
-            console.log(`💾 Saving document ${docId}, content length: ${content?.length}`);
-            await updateDocumentContent(docId, content);
+        // 3. Live edit content - BROADCAST TO ALL IN ROOM INCLUDING SENDER
+        socket.on("edit_document", ({ docId, patch }) => {
             const room = `document_${docId}`;
             
-            // let others know document was saved (timestamp update)
-            io.to(room).emit("document_saved", { 
-                docId, 
-                updatedAt: new Date().toISOString() 
+            // SAFE LOGGING: Check type before calling substring
+            let patchPreview = "Object/Delta";
+            if (typeof patch === 'string') {
+                patchPreview = patch.substring(0, 50) + '...';
+            } else {
+                patchPreview = JSON.stringify(patch).substring(0, 50) + '...';
+            }
+
+            console.log(`📨 Received edit_document from ${socket.id}:`, {
+                room: room,
+                docId: docId,
+                // patchLength: patch?.length, // <--- REMOVE THIS (Objects don't have .length)
+                patchPreview: patchPreview
             });
-            
-            console.log(`✅ Document ${docId} saved successfully`);
-        } catch (err) {
-            console.error("❌ save_document error:", err);
-            socket.emit("document_save_error", { message: "Save failed" });
-        }
-    });
 
-    socket.on("disconnect", () => {
-        console.log(`🔴 Socket ${socket.id} disconnected`);
-    });
+            // Broadcast
+            io.to(room).emit("document_patch", { 
+                docId: docId, 
+                patch: patch,
+                fromSocketId: socket.id 
+            });
+        });
 
-    // Add error handling
-    socket.on("error", (error) => {
-        console.error(`❌ Socket error for ${socket.id}:`, error);
+        // 4. Cursor/selection updates
+        socket.on("cursor_document", ({ docId, cursor }) => {
+            const room = `document_${docId}`;
+            socket.to(room).emit("document_cursor", { socketId: socket.id, cursor });
+        });
+
+        // 5. Explicit save (Notification Only)
+        socket.on("save_document", async ({ docId, content }) => {
+            try {
+                console.log(`💾 Socket received save notification for doc ${docId}`);
+                
+                // 🚨 FIX APPLIED: We removed the DB call here to prevent "Access Denied".
+                // Your Frontend API (projectWorkspace.js) already saved the data to the DB.
+                // This socket event just needs to tell everyone else to update their timestamp.
+                
+                // await updateDocumentContent(docId, content); // <--- REMOVED TO PREVENT CRASH
+
+                const room = `document_${docId}`;
+                
+                // Let others know document was saved (timestamp update)
+                io.to(room).emit("document_saved", { 
+                    docId, 
+                    updatedAt: new Date().toISOString() 
+                });
+                
+                console.log(`✅ Save notification broadcasted for doc ${docId}`);
+            } catch (err) {
+                console.error("❌ save_document error:", err);
+            }
+        });
+
+        socket.on("disconnect", () => {
+            console.log(`🔴 Socket ${socket.id} disconnected`);
+        });
+
+        socket.on("error", (error) => {
+            console.error(`❌ Socket error for ${socket.id}:`, error);
+        });
     });
 }

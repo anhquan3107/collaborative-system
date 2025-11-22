@@ -4,6 +4,7 @@ import { listProjects, addProject, removeProject } from "../controllers/projectC
 import { listProjectMembers } from "../controllers/projectMemberController.js";
 
 import documentRoutes from "./documentRoutes.js"
+import chatRoutes from "./chatRoutes.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -15,5 +16,6 @@ router.delete("/:id", verifyToken, removeProject);
 router.get("/:projectId/members", verifyToken, listProjectMembers);
 
 router.use("/:projectId/documents", documentRoutes);
+router.use("/:projectId/messages", chatRoutes);
 
 export default router;

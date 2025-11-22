@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Team Chat</title>
+    <link href="../../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../../css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        body { height: 100vh; overflow: hidden; background-color: #f8f9fc; }
+        
+        /* Layout Containers */
+        .main-wrapper { display: flex; height: 100%; }
+        
+        /* --- SIDEBAR (Project List) --- */
+        .project-sidebar { 
+            width: 280px; 
+            background: white; 
+            border-right: 1px solid #e3e6f0; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid #e3e6f0; font-weight: bold; font-size: 1.2rem; }
+        .project-list { flex: 1; overflow-y: auto; padding: 10px; }
+        
+        .project-item { 
+            padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 5px; 
+            transition: all 0.2s; display: flex; align-items: center;
+        }
+        .project-item:hover { background-color: #f1f3f4; }
+        .project-item.active { background-color: #4e73df; color: white; }
+        .project-icon { 
+            width: 35px; height: 35px; background: #eaecf4; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; margin-right: 10px; font-weight: bold; color: #4e73df;
+        }
+        .active .project-icon { background: rgba(255,255,255,0.2); color: white; }
+
+        /* --- MAIN CONTENT AREA --- */
+        .content-area { flex: 1; display: flex; flex-direction: column; position: relative; background: #fff; }
+        
+        /* Placeholder (shown when no project selected) */
+        #emptyState { 
+            height: 100%; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; color: #858796; 
+        }
+
+        /* Workspace - Hidden initially */
+        #projectWorkspace { display: none; height: 100%; flex-direction: column; }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e3e6f0;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            background: #f8f9fc;
+        }
+
+        .chat-input-area { 
+            padding: 20px; 
+            border-top: 1px solid #e3e6f0; 
+            background: #fff; 
+            display: flex; 
+            gap: 10px; 
+        }
+        
+        /* Message Bubbles */
+        .message { max-width: 70%; padding: 10px 15px; border-radius: 15px; font-size: 0.95rem; line-height: 1.4; position: relative; }
+        .message.received { background: #fff; border: 1px solid #e3e6f0; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .message.sent { background: #4e73df; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .message-meta { font-size: 0.75rem; margin-bottom: 4px; opacity: 0.8; font-weight: bold; }
+        .sent .message-meta { text-align: right; color: #e0e0e0; }
+        .received .message-meta { color: #858796; }
+
+        /* Call Button */
+        .btn-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    
+    <div class="project-sidebar">
+        <div class="sidebar-header text-primary">
+            <i class="fas fa-comments mr-2"></i> My Projects
+        </div>
+        <div class="project-list" id="projectList">
+            <div class="text-center mt-4"><div class="spinner-border text-primary"></div></div>
+        </div>
+        <div class="p-3 border-top">
+            <a href="../../index.html" class="btn btn-sm btn-outline-secondary btn-block">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="content-area">
+        
+        <div id="emptyState">
+            <i class="fas fa-comments fa-4x mb-3 text-gray-300"></i>
+            <h4>Select a project</h4>
+            <p>Choose a project from the sidebar to start chatting.</p>
+        </div>
+
+        <div id="projectWorkspace">
+            
+            <div class="chat-header">
+                <div>
+                    <h5 class="m-0 font-weight-bold text-primary" id="activeProjectName">Project Name</h5>
+                    <small class="text-muted" id="connectionStatus">Connecting...</small>
+                </div>
+                <button id="callBtn" class="btn btn-success btn-circle shadow-sm" title="Start Video Call">
+                    <i class="fas fa-video"></i>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" class="form-control bg-light border-0 small" placeholder="Type a message...">
+                <button id="sendBtn" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="callModal" tabindex="-1" role="dialog" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center p-4 border-0 shadow-lg">
+        <div class="mb-3">
+            <div class="spinner-grow text-success" style="width: 3rem; height: 3rem;" role="status"></div>
+        </div>
+        <h4 id="callerNameDisplay" class="font-weight-bold">User</h4>
+        <p class="text-muted">is inviting you to a video call...</p>
+        <div class="mt-4">
+            <button class="btn btn-danger px-4 mr-2" data-dismiss="modal">Ignore</button>
+            <button id="joinCallBtn" class="btn btn-success px-4">Join Call</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="../../vendor/jquery/jquery.min.js"></script>
+<script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="js/pages/chat/chat.js"></script>
+
+</body>
+</html>
