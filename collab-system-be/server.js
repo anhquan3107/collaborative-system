@@ -3,8 +3,10 @@ import { Server } from "socket.io";
 import app from "./app.js";
 import pool from "./config/database.js";
 import { initDocumentSocket } from "./sockets/documentSocket.js";
+import { initChatSocket } from "./sockets/chatSocket.js";
+import { initVideoSocket } from "./sockets/videoSocket.js";
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // --- MySQL connection test ---
 try {
@@ -24,15 +26,8 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  console.log("🟢 User connected:", socket.id);
-  
-  // Initialize document collaboration sockets
-  initDocumentSocket(io, socket);
-
-  socket.on("disconnect", () => {
-    console.log("🔴 User disconnected:", socket.id);
-  });
-});
+initChatSocket(io);
+initDocumentSocket(io);
+initVideoSocket(io);
 
 server.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));

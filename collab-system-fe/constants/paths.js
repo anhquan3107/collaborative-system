@@ -12,6 +12,8 @@ export const paths = {
       create: "/projects",
       detail: (id) => `/projects/${id}`,
       members: (id) => `/projects/${id}/members`,
+
+      chat: (id) => `/projects/${id}/messages`,
     },
     documents: {
       list: (projectId) => `/projects/${projectId}/documents`,
