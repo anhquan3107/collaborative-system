@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "../collab-system-fe")));
-app.use("/api", routes);                            // Mount API at /api
+app.use("/api", routes);                            
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../collab-system-fe/index.html"));

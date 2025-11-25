@@ -13,7 +13,6 @@ router.use("/user", userRoutes);
 router.use("/invitations", invitationRoutes); 
 
 
-router.get("/test", (req, res) => res.json({ message: "API working" }));
 
 
 export default router;

@@ -1,5 +1,6 @@
 import { getCurrentUser } from "../api/user.js";
 import './pages/invitation/invitationManager.js';
+import { notyf } from "../vendor/utils/notify.js";
 
 (async () => {
   const token = localStorage.getItem("token");
@@ -63,5 +64,22 @@ import './pages/invitation/invitationManager.js';
 // --------------------------------
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
   localStorage.removeItem("token");
-  window.location.href = "index.html"; // reload homepage
+  
+  // Clear last project history on logout for privacy
+  localStorage.removeItem("last_project_id");
+  localStorage.removeItem("last_project_name");
+  localStorage.removeItem("last_project_date");
+  
+  window.location.href = "index.html";
+});
+
+// --------------------------------
+// CHAT LINK HANDLER (Protect Chat)
+// --------------------------------
+document.getElementById("navChatLink")?.addEventListener("click", (e) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    e.preventDefault(); // Stop navigation
+    notyf.error("Please login first to access Chat");
+  }
 });

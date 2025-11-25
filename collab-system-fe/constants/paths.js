@@ -10,8 +10,10 @@ export const paths = {
     projects: {
       list: "/projects",
       create: "/projects",
+      count: "/projects/count",
       detail: (id) => `/projects/${id}`,
       members: (id) => `/projects/${id}/members`,
+      memberDetail: (projectId, userId) => `/projects/${projectId}/members/${userId}`,
 
       chat: (id) => `/projects/${id}/messages`,
     },
