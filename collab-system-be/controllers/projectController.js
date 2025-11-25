@@ -1,4 +1,4 @@
-import { getProjectsByUser, createProject, deleteProject } from "../models/projectModel.js";
+import { getProjectsByUser, createProject, deleteProject, getProjectCount } from "../models/projectModel.js";
 
 // GET /api/projects
 export async function listProjects(req, res) {
@@ -35,5 +35,16 @@ export async function removeProject(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to delete project" });
+  }
+}
+
+// GET /api/projects/count
+export async function getTotalProjects(req, res) {
+  try {
+    const count = await getProjectCount(req.user.id);
+    res.json({ count });
+  } catch (err) {
+    console.error("Count Error:", err);
+    res.status(500).json({ message: "Failed to load project count" });
   }
 }

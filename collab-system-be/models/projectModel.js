@@ -77,3 +77,14 @@ export async function getProjectById(projectId, userId) {
   );
   return rows[0];
 }
+
+export async function getProjectCount(userId) {
+  const [rows] = await db.query(
+    `SELECT COUNT(DISTINCT p.id) as count 
+     FROM projects p
+     LEFT JOIN project_members pm ON p.id = pm.project_id
+     WHERE p.user_id = ? OR pm.user_id = ?`,
+    [userId, userId]
+  );
+  return rows[0].count;
+}

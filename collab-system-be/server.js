@@ -8,7 +8,6 @@ import { initVideoSocket } from "./sockets/videoSocket.js";
 
 const PORT = process.env.PORT;
 
-// --- MySQL connection test ---
 try {
   const [rows] = await pool.query("SELECT 1 + 1 AS result");
   console.log("✅ MySQL connected successfully:", rows[0].result);
