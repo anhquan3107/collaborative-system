@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import routes from "./routes/index.js"
+import routes from "./routes/index.js";
+import projectMemberRoutes from "./routes/projectMemberRoutes.js";
 
 dotenv.config();
 
@@ -17,8 +18,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "../collab-system-fe")));
-app.use("/api", routes);                            
-
+app.use("/api", routes);
+app.use("/api/projects", projectMemberRoutes);
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../collab-system-fe/index.html"));
 });
