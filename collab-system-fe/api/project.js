@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiDelete, apiPut } from "./apiClient.js";
+import { apiGet, apiPost, apiDelete } from "./apiClient.js";
 import { paths } from "../constants/paths.js";
 
 // Get project list
@@ -26,7 +26,4 @@ export function getProjectMembers(projectId) {
 
 export function removeProjectMember(projectId, userId) {
   return apiDelete(paths.projects.memberDetail(projectId, userId));
-}
-export function updateMemberRole(projectId, userId, role) {
-  return apiPut(paths.projects.memberRole(projectId, userId), { role });
 }
