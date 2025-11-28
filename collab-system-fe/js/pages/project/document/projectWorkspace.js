@@ -7,8 +7,9 @@ import {
 } from "../../../../api/document.js";
 import {
   inviteToProject,
-  getPendingInvitations,
+  getProjectInvitations,
   declineInvitation,
+  cancelInvitation,
 } from "../../../../api/invitation.js";
 import {
   getProjectMembers,
@@ -454,12 +455,13 @@ function setupEventListeners() {
 
       try {
         await inviteToProject(projectId, email, role);
-        alert("Invitation sent successfully!");
+        notyf.success("Invitation sent successfully!");
         $("#inviteModal").modal("hide");
         document.getElementById("inviteEmail").value = "";
-        loadMembers();
+        await loadPendingInvitations();
+        await loadMembers();
       } catch (err) {
-        alert("Failed to send invitation: " + err.message);
+        notyf.error("Failed to send invitation: " + err.message);
       }
     });
   // Pending invitations dropdown auto-close
@@ -517,7 +519,7 @@ function showEditor() {
 // Thêm hàm load pending invitations
 async function loadPendingInvitations() {
   try {
-    const data = await getPendingInvitations();
+    const data = await getProjectInvitations(projectId);
     pendingInvitations = data.invitations || [];
     updatePendingInvitationsUI();
   } catch (err) {
@@ -553,35 +555,31 @@ function updatePendingInvitationsUI() {
   pendingDropdown.innerHTML = pendingInvitations
     .map(
       (invitation) => `
-    <div class="pending-invitation-item p-2 border-bottom">
+  <div class="pending-invitation-item p-2 border-bottom">
       <div class="d-flex justify-content-between align-items-start">
         <div class="flex-grow-1">
-          <h6 class="mb-1 text-primary">${
-            invitation.project_name || "Unknown Project"
+          <h6 class="mb-1 text-primary">Invited: ${
+            invitation.invitee_email
           }</h6>
-          <p class="mb-1 small text-muted">
-            <i class="fas fa-user-tag mr-1"></i>
-            Invited by: ${invitation.inviter_name || invitation.inviter_email}
-          </p>
           <p class="mb-1 small text-muted">
             <i class="fas fa-shield-alt mr-1"></i>
             Role: <span class="text-info">${invitation.role}</span>
           </p>
-          <p class="mb-2 small text-muted">
+          <p class="mb-1 small text-muted">
             <i class="fas fa-clock mr-1"></i>
+            Sent: ${new Date(invitation.created_at).toLocaleDateString()}
+          </p>
+          <p class="mb-2 small text-muted">
+            <i class="fas fa-hourglass-end mr-1"></i>
             Expires: ${new Date(invitation.expires_at).toLocaleDateString()}
           </p>
         </div>
-      </div>
-      <div class="d-flex gap-1 mt-2">
-        <button class="btn btn-success btn-sm flex-fill accept-invitation" 
-                data-token="${invitation.token}">
-          <i class="fas fa-check mr-1"></i>Accept
-        </button>
-        <button class="btn btn-outline-danger btn-sm flex-fill decline-invitation" 
-                data-token="${invitation.token}">
-          <i class="fas fa-times mr-1"></i>Decline
-        </button>
+        <div>
+          <button class="btn btn-outline-danger btn-sm cancel-invitation" 
+                  data-invitation-id="${invitation.id}">
+            <i class="fas fa-times mr-1"></i>Cancel
+          </button>
+        </div>
       </div>
     </div>
   `
@@ -589,12 +587,9 @@ function updatePendingInvitationsUI() {
     .join("");
 
   // Attach event listeners
-  pendingDropdown.querySelectorAll(".accept-invitation").forEach((btn) => {
-    btn.addEventListener("click", handleAcceptInvitation);
-  });
 
-  pendingDropdown.querySelectorAll(".decline-invitation").forEach((btn) => {
-    btn.addEventListener("click", handleDeclineInvitation);
+  pendingDropdown.querySelectorAll(".cancel-invitation").forEach((btn) => {
+    btn.addEventListener("click", handleCancelInvitation);
   });
 }
 
@@ -649,6 +644,25 @@ async function handleDeclineInvitation(event) {
   } catch (err) {
     console.error("Failed to decline invitation:", err);
     notyf.error(err.message || "Failed to decline invitation");
+  }
+}
+
+async function handleCancelInvitation(event) {
+  const invitationId = event.currentTarget.getAttribute("data-invitation-id");
+
+  if (!confirm("Are you sure you want to cancel this invitation?")) {
+    return;
+  }
+
+  try {
+    await cancelInvitation(projectId, invitationId);
+    notyf.success("Invitation cancelled successfully");
+
+    // Reload pending invitations
+    await loadPendingInvitations();
+  } catch (err) {
+    console.error("Failed to cancel invitation:", err);
+    notyf.error(err.message || "Failed to cancel invitation");
   }
 }
 /**

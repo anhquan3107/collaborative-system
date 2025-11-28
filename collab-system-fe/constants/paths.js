@@ -24,12 +24,14 @@ export const paths = {
     detail: (projectId, docId) => `/projects/${projectId}/documents/${docId}`,
   },
   invitations: {
+    //for inviting users to project (for inviters)
     project: (projectId) => `/invitations/project/${projectId}`,
 
     // Result: /api/invitations/project/123/456
     projectDetail: (projectId, invitationId) =>
       `/invitations/project/${projectId}/${invitationId}`,
 
+    //for invitees
     pending: `/invitations/pending`,
     accept: (token) => `/invitations/${token}/accept`,
     decline: (token) => `/invitations/${token}/decline`,
