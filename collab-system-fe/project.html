@@ -6,20 +6,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
-      rel="stylesheet"
-    />
-    <link href="css/sb-admin-2.min.css" rel="stylesheet" />
-    <link href="css/quill.snow.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" rel="stylesheet"/>
+    <link href="css/sb-admin-2.min.css" rel="stylesheet"/>
+    <link href="css/quill.snow.css" rel="stylesheet"/>
 
     <style>
       .workspace {
@@ -74,9 +65,7 @@
         border-bottom: 1px solid #f1f1f1;
         position: relative;
       }
-      .doc-item:hover {
-        background: #f8f9fc;
-      }
+      .doc-item:hover { background: #f8f9fc; }
       .doc-item.active {
         background: #e3f2fd;
         border-left: 3px solid #007bff;
@@ -99,45 +88,14 @@
             <i class="fas fa-users text-primary"></i>
             <span id="memberCountBadge">0 Members</span>
           </button>
-          <button id="inviteBtn" class="btn btn-sm btn-info">
-            Invite Members
-          </button>
-          <div class="btn-group mr-2">
-            <button
-              id="pendingInvitationsBtn"
-              class="btn btn-sm btn-warning dropdown-toggle"
-              type="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <i class="fas fa-envelope mr-1"></i>
-              Pending Invites
-              <span
-                id="pendingInvitationsBadge"
-                class="badge badge-light ml-1"
-                style="display: none"
-                >0</span
-              >
-            </button>
-            <div
-              id="pendingInvitationsDropdown"
-              class="dropdown-menu dropdown-menu-right shadow"
-              style="min-width: 300px; max-height: 400px; overflow-y: auto"
-            >
-              <div class="p-2 text-center text-muted">
-                <small>Loading invitations...</small>
-              </div>
-            </div>
-          </div>
+          <button id="inviteBtn" class="btn btn-sm btn-info">Invite Members</button>
           <button id="saveDocBtn" class="btn btn-sm btn-success">Save</button>
-          <button id="createDocBtn" class="btn btn-sm btn-primary">
-            New Document
-          </button>
+          <button id="createDocBtn" class="btn btn-sm btn-primary">New Document</button>
         </div>
       </div>
 
       <div class="workspace">
+
         <!-- SIDEBAR -->
         <div id="sidebarWrapper">
           <div id="fileList">
@@ -145,17 +103,16 @@
           </div>
 
           <div class="mt-auto border-top pt-3">
-            <button
-              id="backToDashboardBtn"
-              class="btn btn-outline-secondary btn-block shadow-sm"
-            >
+            <button id="backToDashboardBtn" class="btn btn-outline-secondary btn-block shadow-sm">
               <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
             </button>
           </div>
         </div>
 
         <!-- PLACEHOLDER (SHOW FIRST) -->
-        <div id="noDocPlaceholder">Choose a document to start editing</div>
+        <div id="noDocPlaceholder">
+          Choose a document to start editing
+        </div>
 
         <!-- EDITOR WRAPPER (HIDDEN UNTIL OPEN DOC) -->
         <div id="editorWrapper">
@@ -210,87 +167,62 @@
 
     <!-- MODALS (unchanged) -->
     <div class="modal fade" id="createDocModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Create Document</h5>
-            <button type="button" class="close" data-dismiss="modal">
-              <span>&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <input
-              id="newDocTitle"
-              class="form-control"
-              placeholder="Document title"
-            />
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-dismiss="modal">
-              Cancel
-            </button>
-            <button id="createDocSubmit" class="btn btn-primary">Create</button>
-          </div>
+      <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create Document</h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
-      </div>
+        <div class="modal-body">
+          <input id="newDocTitle" class="form-control" placeholder="Document title"/>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button id="createDocSubmit" class="btn btn-primary">Create</button>
+        </div>
+      </div></div>
     </div>
 
     <div class="modal fade" id="inviteModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Invite to Project</h5>
-            <button type="button" class="close" data-dismiss="modal">
-              <span>&times;</span>
-            </button>
+      <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Invite to Project</h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="inviteEmail" class="form-control"/>
           </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Email Address</label>
-              <input type="email" id="inviteEmail" class="form-control" />
-            </div>
-            <div class="form-group">
-              <label>Role</label>
-              <select id="inviteRole" class="form-control">
-                <option value="editor">Editor</option>
-                <option value="viewer">Viewer</option>
-              </select>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-dismiss="modal">
-              Cancel
-            </button>
-            <button id="inviteSubmit" class="btn btn-primary">
-              Send Invitation
-            </button>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="inviteRole" class="form-control">
+              <option value="editor">Editor</option>
+              <option value="viewer">Viewer</option>
+            </select>
           </div>
         </div>
-      </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button id="inviteSubmit" class="btn btn-primary">Send Invitation</button>
+        </div>
+      </div></div>
     </div>
 
     <div class="modal fade" id="projectMembersModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Project Team</h5>
-            <button type="button" class="close" data-dismiss="modal">
-              <span>&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div id="projectMembersList" class="list-group"></div>
-          </div>
+      <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Project Team</h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
-      </div>
+        <div class="modal-body">
+          <div id="projectMembersList" class="list-group"></div>
+        </div>
+      </div></div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script
-      type="module"
-      src="js/pages/project/document/projectWorkspace.js"
-    ></script>
+    <script type="module" src="js/pages/project/document/projectWorkspace.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
   </body>
 </html>
