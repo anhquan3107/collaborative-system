@@ -30,5 +30,11 @@ export const paths = {
       pending: `/invitations/pending`,
       accept: (token) => `/invitations/${token}/accept`,
       decline: (token) => `/invitations/${token}/decline`
-    }
+    },
+
+    whiteboards: {
+      list: (projectId) => `/projects/${projectId}/whiteboards`,
+      detail: (projectId, boardId) => `/projects/${projectId}/whiteboards/${boardId}`,
+},
+
 };

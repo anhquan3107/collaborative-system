@@ -5,6 +5,7 @@ import { listProjectMembers, removeMember } from "../controllers/projectMemberCo
 
 import documentRoutes from "./documentRoutes.js";
 import chatRoutes from "./chatRoutes.js";
+import whiteboardRoutes from "./whiteboardRoutes.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -20,5 +21,8 @@ router.delete("/:projectId/members/:userId", verifyToken, removeMember);
 
 router.use("/:projectId/documents", documentRoutes);
 router.use("/:projectId/messages", chatRoutes);
+router.use("/:projectId/whiteboard", whiteboardRoutes);
+
+
 
 export default router;
