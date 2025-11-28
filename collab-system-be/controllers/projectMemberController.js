@@ -1,9 +1,15 @@
-import { getProjectMembers, removeProjectMember, updateMemberRole, isProjectOwner, getUserProjectRole } from "../models/projectMemberModel.js";
+import {
+  getProjectMembers,
+  removeProjectMember,
+  updateMemberRole,
+  isProjectOwner,
+  getUserProjectRole,
+} from "../models/projectMemberModel.js";
 
 export async function listProjectMembers(req, res) {
   try {
     const projectId = Number(req.params.projectId);
-    
+
     const userRole = await getUserProjectRole(projectId, req.user.id);
     if (!userRole) {
       return res.status(403).json({ message: "Access denied to project" });
@@ -24,11 +30,15 @@ export async function removeMember(req, res) {
 
     const isOwner = await isProjectOwner(projectId, req.user.id);
     if (!isOwner) {
-      return res.status(403).json({ message: "Only project owners can remove members" });
+      return res
+        .status(403)
+        .json({ message: "Only project owners can remove members" });
     }
 
     if (memberId === req.user.id) {
-      return res.status(400).json({ message: "Cannot remove yourself as owner" });
+      return res
+        .status(400)
+        .json({ message: "Cannot remove yourself as owner" });
     }
 
     const success = await removeProjectMember(projectId, memberId);
@@ -49,13 +59,15 @@ export async function updateRole(req, res) {
     const memberId = Number(req.params.userId);
     const { role } = req.body;
 
-    if (!['editor', 'viewer'].includes(role)) {
+    if (!["editor", "viewer"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
     const isOwner = await isProjectOwner(projectId, req.user.id);
     if (!isOwner) {
-      return res.status(403).json({ message: "Only project owners can update roles" });
+      return res
+        .status(403)
+        .json({ message: "Only project owners can update roles" });
     }
 
     if (memberId === req.user.id) {
@@ -80,12 +92,17 @@ export async function leaveProject(req, res) {
 
     const isOwner = await isProjectOwner(projectId, req.user.id);
     if (isOwner) {
-      return res.status(400).json({ message: "Project owner cannot leave project. Transfer ownership or delete project instead." });
+      return res.status(400).json({
+        message:
+          "Project owner cannot leave project. Transfer ownership or delete project instead.",
+      });
     }
 
     const success = await removeProjectMember(projectId, req.user.id);
     if (!success) {
-      return res.status(404).json({ message: "You are not a member of this project" });
+      return res
+        .status(404)
+        .json({ message: "You are not a member of this project" });
     }
 
     res.json({ message: "Left project successfully" });

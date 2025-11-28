@@ -30,6 +30,7 @@ let socket = null;
 let isConnected = false;
 let isReceivingRemoteUpdate = false;
 let saveTimer = null;
+let pendingInvitations = [];
 
 // Initialize the workspace
 document.addEventListener("DOMContentLoaded", function () {
@@ -38,7 +39,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (!projectId) {
-    document.getElementById("docTitle").textContent = "Project ID missing from URL";
+    document.getElementById("docTitle").textContent =
+      "Project ID missing from URL";
     return;
   }
 
@@ -50,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
   loadMembers();
   showPlaceholder();
   setupEventListeners();
+  loadPendingInvitations();
 });
 
 const Size = Quill.import("attributors/style/size");
@@ -97,7 +100,7 @@ function initializeSocket() {
       if (data.fromSocketId === socket.id) return;
 
       try {
-        isReceivingRemoteUpdate = true; 
+        isReceivingRemoteUpdate = true;
         if (typeof data.patch === "object") {
           console.log("⚡ Applying remote Delta update");
           quill.updateContents(data.patch);
@@ -113,7 +116,7 @@ function initializeSocket() {
         console.error("Error applying patch:", err);
       } finally {
         setTimeout(() => {
-          isReceivingRemoteUpdate = false; 
+          isReceivingRemoteUpdate = false;
         }, 100);
       }
     }
@@ -121,7 +124,11 @@ function initializeSocket() {
 
   socket.on("document_saved", (data) => {
     if (data.docId == currentDocId) {
-      document.getElementById("lastSaved").textContent = `Last saved: ${new Date(data.updatedAt).toLocaleString()}`;
+      document.getElementById(
+        "lastSaved"
+      ).textContent = `Last saved: ${new Date(
+        data.updatedAt
+      ).toLocaleString()}`;
       flashEditorBorder("info");
     }
   });
@@ -137,7 +144,7 @@ function handleQuillTextChange(delta, oldDelta, source) {
     if (socket && currentDocId) {
       socket.emit("edit_document", {
         docId: currentDocId,
-        patch: delta, 
+        patch: delta,
       });
     }
     clearTimeout(saveTimer);
@@ -152,7 +159,9 @@ async function openDocument(docId, docTitle) {
 
     if (currentDocId && socket) {
       socket.emit("leave_document", { docId: currentDocId });
-      const prevIndicator = document.getElementById(`indicator-${currentDocId}`);
+      const prevIndicator = document.getElementById(
+        `indicator-${currentDocId}`
+      );
       if (prevIndicator) prevIndicator.style.display = "none";
     }
 
@@ -181,7 +190,9 @@ async function openDocument(docId, docTitle) {
       quill.on("text-change", handleQuillTextChange);
     }
 
-    document.getElementById("lastSaved").textContent = `Last saved: ${new Date(data.document.updated_at).toLocaleString()}`;
+    document.getElementById("lastSaved").textContent = `Last saved: ${new Date(
+      data.document.updated_at
+    ).toLocaleString()}`;
     updateDocumentListUI(currentDocId);
 
     if (socket) {
@@ -208,7 +219,9 @@ async function saveCurrentDocument() {
       socket.emit("save_document", { docId: currentDocId, content });
     }
 
-    document.getElementById("lastSaved").textContent = `Last saved: ${new Date().toLocaleString()}`;
+    document.getElementById(
+      "lastSaved"
+    ).textContent = `Last saved: ${new Date().toLocaleString()}`;
     console.log("✅ Document saved successfully");
   } catch (err) {
     console.error("❌ Failed to save document:", err);
@@ -240,7 +253,8 @@ async function loadDocuments() {
     renderDocumentList(data.documents);
   } catch (err) {
     console.error("❌ Failed to load documents:", err);
-    document.getElementById("fileList").innerHTML = '<div class="text-danger">Failed to load documents</div>';
+    document.getElementById("fileList").innerHTML =
+      '<div class="text-danger">Failed to load documents</div>';
   }
 }
 
@@ -258,8 +272,12 @@ function renderDocumentList(documents) {
         <div class="doc-item ${doc.id === currentDocId ? "active" : ""}" 
              data-doc-id="${doc.id}" data-doc-title="${doc.title}">
             <div class="font-weight-bold">${doc.title}</div>
-            <small class="text-muted">Updated: ${new Date(doc.updated_at).toLocaleDateString()}</small>
-            <div class="real-time-indicator" id="indicator-${doc.id}" style="display: none;">
+            <small class="text-muted">Updated: ${new Date(
+              doc.updated_at
+            ).toLocaleDateString()}</small>
+            <div class="real-time-indicator" id="indicator-${
+              doc.id
+            }" style="display: none;">
                 <small class="text-success">● Live</small>
             </div>
         </div>
@@ -290,18 +308,21 @@ function updateDocumentListUI(activeDocId) {
 }
 
 function setupEventListeners() {
-  
   // Back Button
-  document.getElementById("backToDashboardBtn").addEventListener("click", () => {
-     window.location.href = "index.html";
-  });
+  document
+    .getElementById("backToDashboardBtn")
+    .addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
 
   // Create document
   document.getElementById("createDocBtn").addEventListener("click", () => {
     $("#createDocModal").modal("show");
   });
 
-  document.getElementById("createDocSubmit").addEventListener("click", async () => {
+  document
+    .getElementById("createDocSubmit")
+    .addEventListener("click", async () => {
       const title = document.getElementById("newDocTitle").value.trim();
       if (!title) {
         alert("Title required");
@@ -326,7 +347,8 @@ function setupEventListeners() {
     $("#projectMembersModal").modal("show");
 
     if (!projectMembers || projectMembers.length === 0) {
-      listContainer.innerHTML = '<div class="p-3 text-muted">No members found</div>';
+      listContainer.innerHTML =
+        '<div class="p-3 text-muted">No members found</div>';
       return;
     }
 
@@ -340,23 +362,36 @@ function setupEventListeners() {
             <div class="small text-muted ml-4">${m.email || "No email"}</div>
           </div>
           <div class="d-flex align-items-center">
-            <span class="badge badge-${m.role === "owner" ? "primary" : "secondary"} mr-2">
-              ${m.role || "member"}
-            </span>
             ${
-              m.role === "owner"
-                ? ""
-                : `<button class="btn btn-sm btn-outline-danger remove-member-btn"
-                           data-user-id="${m.user_id}">
-                     <i class="fas fa-user-times"></i>
-                   </button>`
+              m.actual_role === "owner"
+                ? `<span class="badge badge-primary mr-2">Owner</span>`
+                : `
+                <select class="form-control form-control-sm role-select mr-2" 
+                        data-user-id="${m.user_id}" 
+                        style="width: 100px;">
+                  <option value="editor" ${
+                    m.role === "editor" ? "selected" : ""
+                  }>Editor</option>
+                  <option value="viewer" ${
+                    m.role === "viewer" ? "selected" : ""
+                  }>Viewer</option>
+                </select>
+                <button class="btn btn-sm btn-outline-danger remove-member-btn"
+                        data-user-id="${m.user_id}">
+                  <i class="fas fa-user-times"></i>
+                </button>
+              `
             }
-          </div>
         </div>
+      </div>
       `
       )
       .join("");
 
+    // ✅ Add: Event listener for role dropdown
+    listContainer.querySelectorAll(".role-select").forEach((select) => {
+      select.addEventListener("change", handleRoleChange);
+    });
     // ✅ ADD: Remove member handler
     listContainer.querySelectorAll(".remove-member-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
@@ -388,13 +423,13 @@ function setupEventListeners() {
         }
       });
     });
-
   });
 
-  
   // Save Document
-  document.getElementById("saveDocBtn").addEventListener("click", saveCurrentDocument);
-  
+  document
+    .getElementById("saveDocBtn")
+    .addEventListener("click", saveCurrentDocument);
+
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
@@ -407,7 +442,9 @@ function setupEventListeners() {
     $("#inviteModal").modal("show");
   });
 
-  document.getElementById("inviteSubmit").addEventListener("click", async () => {
+  document
+    .getElementById("inviteSubmit")
+    .addEventListener("click", async () => {
       const email = document.getElementById("inviteEmail").value.trim();
       const role = document.getElementById("inviteRole").value;
 
@@ -427,6 +464,21 @@ function setupEventListeners() {
         notyf.error("Failed to send invitation: " + err.message);
       }
     });
+  // Pending invitations dropdown auto-close
+  document.addEventListener("click", (e) => {
+    if (
+      !e.target.closest("#pendingInvitationsBtn") &&
+      !e.target.closest("#pendingInvitationsDropdown")
+    ) {
+      const dropdown = document.getElementById("pendingInvitationsDropdown");
+      if (dropdown) {
+        $(dropdown).parent().removeClass("show");
+      }
+    }
+  });
+
+  // Auto-refresh pending invitations every 30 seconds
+  setInterval(loadPendingInvitations, 30000);
 }
 
 function checkAuth() {
@@ -445,7 +497,9 @@ async function loadMembers() {
     projectMembers = data.members || [];
     const countSpan = document.getElementById("memberCountBadge");
     if (countSpan) {
-      countSpan.textContent = `${projectMembers.length} Member${projectMembers.length !== 1 ? "s" : ""}`;
+      countSpan.textContent = `${projectMembers.length} Member${
+        projectMembers.length !== 1 ? "s" : ""
+      }`;
     }
   } catch (err) {
     console.error("Failed to load members:", err);
