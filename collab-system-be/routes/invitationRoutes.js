@@ -7,17 +7,21 @@ import {
   cancelInvitation,
   getMyPendingInvitations,
   acceptInvitation,
-  declineInvitation
+  declineInvitation,
 } from "../controllers/projectInvitationController.js";
 
 const router = express.Router();
 
-// NEW (Cleaner: /api/invitations/project/:projectId)
+// NEW (Cleaner: /api/invitations/project/:projectId) (for inviters)
 router.post("/project/:projectId", verifyToken, inviteToProject);
 router.get("/project/:projectId", verifyToken, getInvitations);
-router.delete("/project/:projectId/:invitationId", verifyToken, cancelInvitation);
+router.delete(
+  "/project/:projectId/:invitationId",
+  verifyToken,
+  cancelInvitation
+);
 
-// User invitation management - KEEP as is
+// User invitation management - KEEP as is (for invitees)
 router.get("/pending", verifyToken, getMyPendingInvitations);
 router.post("/:token/accept", verifyToken, acceptInvitation);
 router.post("/:token/decline", verifyToken, declineInvitation);
