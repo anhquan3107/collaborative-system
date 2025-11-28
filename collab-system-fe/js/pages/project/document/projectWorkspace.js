@@ -5,8 +5,17 @@ import {
   getDocument,
   saveDocument,
 } from "../../../../api/document.js";
-import { inviteToProject } from "../../../../api/invitation.js";
-import { getProjectMembers, removeProjectMember } from "../../../../api/project.js";
+import {
+  inviteToProject,
+  getProjectInvitations,
+  declineInvitation,
+  cancelInvitation,
+} from "../../../../api/invitation.js";
+import {
+  getProjectMembers,
+  removeProjectMember,
+  updateMemberRole,
+} from "../../../../api/project.js";
 
 // ✅ ADD: Notyf import
 import { notyf } from "../../../../vendor/utils/notify.js";
@@ -21,6 +30,7 @@ let socket = null;
 let isConnected = false;
 let isReceivingRemoteUpdate = false;
 let saveTimer = null;
+let pendingInvitations = [];
 
 // Initialize the workspace
 document.addEventListener("DOMContentLoaded", function () {
@@ -29,7 +39,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (!projectId) {
-    document.getElementById("docTitle").textContent = "Project ID missing from URL";
+    document.getElementById("docTitle").textContent =
+      "Project ID missing from URL";
     return;
   }
 
@@ -41,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
   loadMembers();
   showPlaceholder();
   setupEventListeners();
+  loadPendingInvitations();
 });
 
 const Size = Quill.import("attributors/style/size");
@@ -88,7 +100,7 @@ function initializeSocket() {
       if (data.fromSocketId === socket.id) return;
 
       try {
-        isReceivingRemoteUpdate = true; 
+        isReceivingRemoteUpdate = true;
         if (typeof data.patch === "object") {
           console.log("⚡ Applying remote Delta update");
           quill.updateContents(data.patch);
@@ -104,7 +116,7 @@ function initializeSocket() {
         console.error("Error applying patch:", err);
       } finally {
         setTimeout(() => {
-          isReceivingRemoteUpdate = false; 
+          isReceivingRemoteUpdate = false;
         }, 100);
       }
     }
@@ -112,7 +124,11 @@ function initializeSocket() {
 
   socket.on("document_saved", (data) => {
     if (data.docId == currentDocId) {
-      document.getElementById("lastSaved").textContent = `Last saved: ${new Date(data.updatedAt).toLocaleString()}`;
+      document.getElementById(
+        "lastSaved"
+      ).textContent = `Last saved: ${new Date(
+        data.updatedAt
+      ).toLocaleString()}`;
       flashEditorBorder("info");
     }
   });
@@ -128,7 +144,7 @@ function handleQuillTextChange(delta, oldDelta, source) {
     if (socket && currentDocId) {
       socket.emit("edit_document", {
         docId: currentDocId,
-        patch: delta, 
+        patch: delta,
       });
     }
     clearTimeout(saveTimer);
@@ -143,7 +159,9 @@ async function openDocument(docId, docTitle) {
 
     if (currentDocId && socket) {
       socket.emit("leave_document", { docId: currentDocId });
-      const prevIndicator = document.getElementById(`indicator-${currentDocId}`);
+      const prevIndicator = document.getElementById(
+        `indicator-${currentDocId}`
+      );
       if (prevIndicator) prevIndicator.style.display = "none";
     }
 
@@ -172,7 +190,9 @@ async function openDocument(docId, docTitle) {
       quill.on("text-change", handleQuillTextChange);
     }
 
-    document.getElementById("lastSaved").textContent = `Last saved: ${new Date(data.document.updated_at).toLocaleString()}`;
+    document.getElementById("lastSaved").textContent = `Last saved: ${new Date(
+      data.document.updated_at
+    ).toLocaleString()}`;
     updateDocumentListUI(currentDocId);
 
     if (socket) {
@@ -199,7 +219,9 @@ async function saveCurrentDocument() {
       socket.emit("save_document", { docId: currentDocId, content });
     }
 
-    document.getElementById("lastSaved").textContent = `Last saved: ${new Date().toLocaleString()}`;
+    document.getElementById(
+      "lastSaved"
+    ).textContent = `Last saved: ${new Date().toLocaleString()}`;
     console.log("✅ Document saved successfully");
   } catch (err) {
     console.error("❌ Failed to save document:", err);
@@ -231,7 +253,8 @@ async function loadDocuments() {
     renderDocumentList(data.documents);
   } catch (err) {
     console.error("❌ Failed to load documents:", err);
-    document.getElementById("fileList").innerHTML = '<div class="text-danger">Failed to load documents</div>';
+    document.getElementById("fileList").innerHTML =
+      '<div class="text-danger">Failed to load documents</div>';
   }
 }
 
@@ -249,8 +272,12 @@ function renderDocumentList(documents) {
         <div class="doc-item ${doc.id === currentDocId ? "active" : ""}" 
              data-doc-id="${doc.id}" data-doc-title="${doc.title}">
             <div class="font-weight-bold">${doc.title}</div>
-            <small class="text-muted">Updated: ${new Date(doc.updated_at).toLocaleDateString()}</small>
-            <div class="real-time-indicator" id="indicator-${doc.id}" style="display: none;">
+            <small class="text-muted">Updated: ${new Date(
+              doc.updated_at
+            ).toLocaleDateString()}</small>
+            <div class="real-time-indicator" id="indicator-${
+              doc.id
+            }" style="display: none;">
                 <small class="text-success">● Live</small>
             </div>
         </div>
@@ -281,18 +308,21 @@ function updateDocumentListUI(activeDocId) {
 }
 
 function setupEventListeners() {
-  
   // Back Button
-  document.getElementById("backToDashboardBtn").addEventListener("click", () => {
-     window.location.href = "index.html";
-  });
+  document
+    .getElementById("backToDashboardBtn")
+    .addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
 
   // Create document
   document.getElementById("createDocBtn").addEventListener("click", () => {
     $("#createDocModal").modal("show");
   });
 
-  document.getElementById("createDocSubmit").addEventListener("click", async () => {
+  document
+    .getElementById("createDocSubmit")
+    .addEventListener("click", async () => {
       const title = document.getElementById("newDocTitle").value.trim();
       if (!title) {
         alert("Title required");
@@ -317,7 +347,8 @@ function setupEventListeners() {
     $("#projectMembersModal").modal("show");
 
     if (!projectMembers || projectMembers.length === 0) {
-      listContainer.innerHTML = '<div class="p-3 text-muted">No members found</div>';
+      listContainer.innerHTML =
+        '<div class="p-3 text-muted">No members found</div>';
       return;
     }
 
@@ -331,23 +362,36 @@ function setupEventListeners() {
             <div class="small text-muted ml-4">${m.email || "No email"}</div>
           </div>
           <div class="d-flex align-items-center">
-            <span class="badge badge-${m.role === "owner" ? "primary" : "secondary"} mr-2">
-              ${m.role || "member"}
-            </span>
             ${
-              m.role === "owner"
-                ? ""
-                : `<button class="btn btn-sm btn-outline-danger remove-member-btn"
-                           data-user-id="${m.user_id}">
-                     <i class="fas fa-user-times"></i>
-                   </button>`
+              m.actual_role === "owner"
+                ? `<span class="badge badge-primary mr-2">Owner</span>`
+                : `
+                <select class="form-control form-control-sm role-select mr-2" 
+                        data-user-id="${m.user_id}" 
+                        style="width: 100px;">
+                  <option value="editor" ${
+                    m.role === "editor" ? "selected" : ""
+                  }>Editor</option>
+                  <option value="viewer" ${
+                    m.role === "viewer" ? "selected" : ""
+                  }>Viewer</option>
+                </select>
+                <button class="btn btn-sm btn-outline-danger remove-member-btn"
+                        data-user-id="${m.user_id}">
+                  <i class="fas fa-user-times"></i>
+                </button>
+              `
             }
-          </div>
         </div>
+      </div>
       `
       )
       .join("");
 
+    // ✅ Add: Event listener for role dropdown
+    listContainer.querySelectorAll(".role-select").forEach((select) => {
+      select.addEventListener("change", handleRoleChange);
+    });
     // ✅ ADD: Remove member handler
     listContainer.querySelectorAll(".remove-member-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
@@ -379,13 +423,13 @@ function setupEventListeners() {
         }
       });
     });
-
   });
 
-  
   // Save Document
-  document.getElementById("saveDocBtn").addEventListener("click", saveCurrentDocument);
-  
+  document
+    .getElementById("saveDocBtn")
+    .addEventListener("click", saveCurrentDocument);
+
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
@@ -398,7 +442,9 @@ function setupEventListeners() {
     $("#inviteModal").modal("show");
   });
 
-  document.getElementById("inviteSubmit").addEventListener("click", async () => {
+  document
+    .getElementById("inviteSubmit")
+    .addEventListener("click", async () => {
       const email = document.getElementById("inviteEmail").value.trim();
       const role = document.getElementById("inviteRole").value;
 
@@ -409,14 +455,30 @@ function setupEventListeners() {
 
       try {
         await inviteToProject(projectId, email, role);
-        alert("Invitation sent successfully!");
+        notyf.success("Invitation sent successfully!");
         $("#inviteModal").modal("hide");
         document.getElementById("inviteEmail").value = "";
-        loadMembers();
+        await loadPendingInvitations();
+        await loadMembers();
       } catch (err) {
-        alert("Failed to send invitation: " + err.message);
+        notyf.error("Failed to send invitation: " + err.message);
       }
     });
+  // Pending invitations dropdown auto-close
+  document.addEventListener("click", (e) => {
+    if (
+      !e.target.closest("#pendingInvitationsBtn") &&
+      !e.target.closest("#pendingInvitationsDropdown")
+    ) {
+      const dropdown = document.getElementById("pendingInvitationsDropdown");
+      if (dropdown) {
+        $(dropdown).parent().removeClass("show");
+      }
+    }
+  });
+
+  // Auto-refresh pending invitations every 30 seconds
+  setInterval(loadPendingInvitations, 30000);
 }
 
 function checkAuth() {
@@ -435,7 +497,9 @@ async function loadMembers() {
     projectMembers = data.members || [];
     const countSpan = document.getElementById("memberCountBadge");
     if (countSpan) {
-      countSpan.textContent = `${projectMembers.length} Member${projectMembers.length !== 1 ? "s" : ""}`;
+      countSpan.textContent = `${projectMembers.length} Member${
+        projectMembers.length !== 1 ? "s" : ""
+      }`;
     }
   } catch (err) {
     console.error("Failed to load members:", err);
@@ -452,3 +516,188 @@ function showEditor() {
   document.getElementById("editorWrapper").style.display = "flex";
 }
 
+// Thêm hàm load pending invitations
+async function loadPendingInvitations() {
+  try {
+    const data = await getProjectInvitations(projectId);
+    pendingInvitations = data.invitations || [];
+    updatePendingInvitationsUI();
+  } catch (err) {
+    console.error("❌ Failed to load pending invitations:", err);
+  }
+}
+
+//Add function to display pending invitations in the UI
+function updatePendingInvitationsUI() {
+  const pendingBadge = document.getElementById("pendingInvitationsBadge");
+  const pendingDropdown = document.getElementById("pendingInvitationsDropdown");
+
+  if (!pendingBadge || !pendingDropdown) return;
+
+  // Update badge count
+  if (pendingInvitations.length > 0) {
+    pendingBadge.textContent = pendingInvitations.length;
+    pendingBadge.style.display = "inline-block";
+  } else {
+    pendingBadge.style.display = "none";
+  }
+
+  // Update dropdown content
+  if (pendingInvitations.length === 0) {
+    pendingDropdown.innerHTML = `
+      <div class="p-2 text-center text-muted">
+        <small>No pending invitations</small>
+      </div>
+    `;
+    return;
+  }
+
+  pendingDropdown.innerHTML = pendingInvitations
+    .map(
+      (invitation) => `
+  <div class="pending-invitation-item p-2 border-bottom">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="flex-grow-1">
+          <h6 class="mb-1 text-primary">Invited: ${
+            invitation.invitee_email
+          }</h6>
+          <p class="mb-1 small text-muted">
+            <i class="fas fa-shield-alt mr-1"></i>
+            Role: <span class="text-info">${invitation.role}</span>
+          </p>
+          <p class="mb-1 small text-muted">
+            <i class="fas fa-clock mr-1"></i>
+            Sent: ${new Date(invitation.created_at).toLocaleDateString()}
+          </p>
+          <p class="mb-2 small text-muted">
+            <i class="fas fa-hourglass-end mr-1"></i>
+            Expires: ${new Date(invitation.expires_at).toLocaleDateString()}
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-outline-danger btn-sm cancel-invitation" 
+                  data-invitation-id="${invitation.id}">
+            <i class="fas fa-times mr-1"></i>Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+
+  // Attach event listeners
+
+  pendingDropdown.querySelectorAll(".cancel-invitation").forEach((btn) => {
+    btn.addEventListener("click", handleCancelInvitation);
+  });
+}
+
+// Thêm event handlers
+async function handleAcceptInvitation(event) {
+  const token = event.currentTarget.getAttribute("data-token");
+
+  try {
+    const result = await acceptInvitation(token);
+    notyf.success("Invitation accepted! You are now a member of the project.");
+
+    // Reload pending invitations
+    await loadPendingInvitations();
+
+    // Dispatch event để dashboard refresh
+    window.dispatchEvent(new CustomEvent("project:invitation-accepted"));
+
+    // Optional: Redirect to the accepted project
+    if (result.projectId) {
+      setTimeout(() => {
+        notyf.success(
+          `Redirecting to ${result.projectName || "the project"}...`
+        );
+        // Có thể redirect hoặc mở tab mới
+        window.open(
+          `project.html?projectId=${
+            result.projectId
+          }&projectName=${encodeURIComponent(result.projectName || "Project")}`,
+          "_blank"
+        );
+      }, 1500);
+    }
+  } catch (err) {
+    console.error("Failed to accept invitation:", err);
+    notyf.error(err.message || "Failed to accept invitation");
+  }
+}
+
+async function handleDeclineInvitation(event) {
+  const token = event.currentTarget.getAttribute("data-token");
+
+  if (!confirm("Are you sure you want to decline this invitation?")) {
+    return;
+  }
+
+  try {
+    await declineInvitation(token);
+    notyf.success("Invitation declined.");
+
+    // Reload pending invitations
+    await loadPendingInvitations();
+  } catch (err) {
+    console.error("Failed to decline invitation:", err);
+    notyf.error(err.message || "Failed to decline invitation");
+  }
+}
+
+async function handleCancelInvitation(event) {
+  const invitationId = event.currentTarget.getAttribute("data-invitation-id");
+
+  if (!confirm("Are you sure you want to cancel this invitation?")) {
+    return;
+  }
+
+  try {
+    await cancelInvitation(projectId, invitationId);
+    notyf.success("Invitation cancelled successfully");
+
+    // Reload pending invitations
+    await loadPendingInvitations();
+  } catch (err) {
+    console.error("Failed to cancel invitation:", err);
+    notyf.error(err.message || "Failed to cancel invitation");
+  }
+}
+/**
+ * Handle role change for project members
+ */
+async function handleRoleChange(event) {
+  const select = event.target;
+  const userId = select.getAttribute("data-user-id");
+  const newRole = select.value;
+
+  //Display loading state
+  const originalValue = select.value;
+  select.disabled = true;
+
+  try {
+    // Call API update role
+    await updateMemberRole(projectId, userId, newRole);
+
+    notyf.success(`Member role updated to ${newRole}`);
+
+    // Update local state
+    const member = projectMembers.find(
+      (m) => String(m.user_id) === String(userId)
+    );
+    if (member) {
+      member.role = newRole;
+    }
+  } catch (err) {
+    console.error("Failed to update role:", err);
+
+    // Revert UI on error
+    select.value = originalValue;
+    notyf.error(err.message || "Failed to update role");
+  } finally {
+    // Re-enable select
+    select.disabled = false;
+  }
+}
