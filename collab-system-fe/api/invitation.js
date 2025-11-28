@@ -7,7 +7,7 @@ import { paths } from "../constants/paths.js";
  * POST /api/projects/:projectId/invitations
  */
 export function inviteToProject(projectId, email, role) {
-  return apiPost(paths.invitations.project(projectId), { email, role });
+    return apiPost(paths.invitations.project(projectId), { email, role });
 }
 
 /**
@@ -15,7 +15,7 @@ export function inviteToProject(projectId, email, role) {
  * GET /api/projects/:projectId/invitations
  */
 export function getProjectInvitations(projectId) {
-  return apiGet(paths.invitations.project(projectId));
+    return apiGet(paths.invitations.project(projectId));
 }
 
 /**
@@ -23,7 +23,7 @@ export function getProjectInvitations(projectId) {
  * DELETE /api/projects/:projectId/invitations/:invitationId
  */
 export function cancelInvitation(projectId, invitationId) {
-  return apiDelete(paths.invitations.projectDetail(projectId, invitationId));
+    return apiDelete(paths.invitations.projectDetail(projectId, invitationId));
 }
 
 /**
@@ -31,7 +31,7 @@ export function cancelInvitation(projectId, invitationId) {
  * GET /api/invitations/pending
  */
 export function getPendingInvitations() {
-  return apiGet(paths.invitations.pending);
+    return apiGet(paths.invitations.pending);
 }
 
 /**
@@ -39,7 +39,7 @@ export function getPendingInvitations() {
  * POST /api/invitations/:token/accept
  */
 export function acceptInvitation(token) {
-  return apiPost(paths.invitations.accept(token), {});
+    return apiPost(paths.invitations.accept(token), {});
 }
 
 /**
@@ -47,5 +47,5 @@ export function acceptInvitation(token) {
  * POST /api/invitations/:token/decline
  */
 export function declineInvitation(token) {
-  return apiPost(paths.invitations.decline(token), {});
+    return apiPost(paths.invitations.decline(token), {});
 }
