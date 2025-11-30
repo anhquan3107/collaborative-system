@@ -14,6 +14,7 @@ import {
 
 import documentRoutes from "./documentRoutes.js";
 import chatRoutes from "./chatRoutes.js";
+import whiteboardRoutes from "./whiteboardRoutes.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -30,5 +31,8 @@ router.put("/:projectId/members/:userId/role", verifyToken, updateRole);
 
 router.use("/:projectId/documents", documentRoutes);
 router.use("/:projectId/messages", chatRoutes);
+router.use("/:projectId/whiteboards", whiteboardRoutes);
+
+
 
 export default router;

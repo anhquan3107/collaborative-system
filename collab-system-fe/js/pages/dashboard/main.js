@@ -1,6 +1,6 @@
-import { getCurrentUser } from "../api/user.js";
-import './pages/invitation/invitationManager.js';
-import { notyf } from "../vendor/utils/notify.js";
+import { getCurrentUser } from "../../../api/user.js";
+import "./invitationManager.js";
+import { notyf } from "../../../vendor/utils/notify.js";
 
 (async () => {
   const token = localStorage.getItem("token");

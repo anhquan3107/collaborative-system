@@ -5,6 +5,7 @@ import pool from "./config/database.js";
 import { initDocumentSocket } from "./sockets/documentSocket.js";
 import { initChatSocket } from "./sockets/chatSocket.js";
 import { initVideoSocket } from "./sockets/videoSocket.js";
+import { initWhiteboardSocket } from "./sockets/whiteboardSocket.js";
 
 const PORT = process.env.PORT;
 
@@ -28,5 +29,6 @@ const io = new Server(server, {
 initChatSocket(io);
 initDocumentSocket(io);
 initVideoSocket(io);
+initWhiteboardSocket(io); 
 
 server.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
