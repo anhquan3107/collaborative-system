@@ -27,28 +27,13 @@ export function initWhiteboardSocket(io) {
 
         /**
          * 3. LIVE DRAWING EVENT
-         * patch = the new strokes (array of stroke objects)
-         */
-        socket.on("draw_whiteboard", ({ whiteboardId, patch }) => {
-            const room = `whiteboard_${whiteboardId}`;
+         **/
+        socket.on("whiteboard_stroke", ({ boardId, stroke }) => {
+            const room = `whiteboard_${boardId}`;
 
-            // Safe preview for logs
-            let patchPreview = "Object";
-            try {
-                patchPreview = JSON.stringify(patch).substring(0, 80) + "...";
-            } catch {}
-
-            console.log(`🖌️ Received draw_whiteboard from ${socket.id}:`, {
-                room,
-                whiteboardId,
-                patchPreview
-            });
-
-            // Broadcast to everyone including sender
-            io.to(room).emit("whiteboard_patch", {
-                whiteboardId,
-                patch,
-                fromSocketId: socket.id
+            io.to(room).emit("whiteboard_stroke", {
+                boardId,
+                stroke,
             });
         });
 

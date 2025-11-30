@@ -31,7 +31,7 @@ router.put("/:projectId/members/:userId/role", verifyToken, updateRole);
 
 router.use("/:projectId/documents", documentRoutes);
 router.use("/:projectId/messages", chatRoutes);
-router.use("/:projectId/whiteboard", whiteboardRoutes);
+router.use("/:projectId/whiteboards", whiteboardRoutes);
 
 
 

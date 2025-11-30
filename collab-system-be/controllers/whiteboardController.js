@@ -1,23 +1,50 @@
 // backend/controllers/whiteboardController.js
 import {
   createWhiteboard,
-  getWhiteboardByProject,
+  getWhiteboardById,
   saveWhiteboardData,
+  listWhiteboardsByProject
 } from "../models/whiteboardModel.js";
 
 /**
- * GET /api/projects/:projectId/whiteboard
+ * GET /api/projects/:projectId/whiteboards
+ * Return an array of whiteboards
+ */
+export async function getProjectWhiteboards(req, res) {
+  try {
+    const projectId = Number(req.params.projectId);
+
+    // pass userId for access check
+    const whiteboards = await listWhiteboardsByProject(projectId, req.user.id);
+
+    res.json({ whiteboards: whiteboards });
+  } catch (err) {
+    console.error("getProjectWhiteboards error:", err);
+    res.status(500).json({ message: err.message || "Server error" });
+  }
+}
+
+/**
+ * GET /api/projects/:projectId/whiteboards/:whiteboardId
+ * Return a single whiteboard
  */
 export async function getWhiteboard(req, res) {
   try {
     const projectId = Number(req.params.projectId);
+    const whiteboardId = Number(req.params.whiteboardId);
 
-    const wb = await getWhiteboardByProject(projectId, req.user.id);
-    if (!wb) {
-      return res.json({ whiteboard: null }); // not an error, just none created
+    // access-controlled fetch
+    const whiteboard = await getWhiteboardById(
+      whiteboardId,
+      projectId,
+      req.user.id
+    );
+
+    if (!whiteboard) {
+      return res.status(404).json({ message: "Whiteboard not found" });
     }
 
-    res.json({ whiteboard: wb });
+    res.json({ whiteboard });
   } catch (err) {
     console.error("getWhiteboard error:", err);
     res.status(500).json({ message: err.message || "Server error" });
@@ -25,16 +52,27 @@ export async function getWhiteboard(req, res) {
 }
 
 /**
- * POST /api/projects/:projectId/whiteboard
- * body: { title }
+ * POST /api/projects/:projectId/whiteboards
+ * Create a new whiteboard
  */
 export async function createNewWhiteboard(req, res) {
   try {
     const projectId = Number(req.params.projectId);
     const { title } = req.body;
 
-    const whiteboardId = await createWhiteboard(projectId, title || "Untitled Whiteboard");
-    res.status(201).json({ whiteboardId });
+    const whiteboardId = await createWhiteboard(
+      projectId,
+      title || "Untitled Whiteboard",
+      req.user.id
+    );
+
+    const whiteboard = await getWhiteboardById(
+      whiteboardId,
+      projectId,
+      req.user.id
+    );
+
+    res.status(201).json({ whiteboard });
   } catch (err) {
     console.error("createNewWhiteboard error:", err);
     res.status(500).json({ message: err.message || "Server error" });
@@ -42,15 +80,22 @@ export async function createNewWhiteboard(req, res) {
 }
 
 /**
- * PUT /api/projects/:projectId/whiteboard/:whiteboardId
- * body: { data }
+ * PUT /api/projects/:projectId/whiteboards/:whiteboardId
+ * Save whiteboard data
  */
 export async function saveWhiteboard(req, res) {
   try {
+    const projectId = Number(req.params.projectId);
     const whiteboardId = Number(req.params.whiteboardId);
-    const { data } = req.body;
+    const { content } = req.body;
 
-    await saveWhiteboardData(whiteboardId, JSON.stringify(data));
+    await saveWhiteboardData(
+      whiteboardId,
+      projectId,
+      content,
+      req.user.id
+    );
+
     res.json({ message: "Saved" });
   } catch (err) {
     console.error("saveWhiteboard error:", err);

@@ -4,7 +4,7 @@ import { paths } from "../constants/paths.js";
 
 /**
  * List whiteboards in a project
- * GET /api/projects/:projectId/whiteboards
+ * GET /api/projects/:projectId/whiteboard
  */
 export function listWhiteboards(projectId) {
   return apiGet(paths.whiteboards.list(projectId));
@@ -12,7 +12,7 @@ export function listWhiteboards(projectId) {
 
 /**
  * Get a single whiteboard
- * GET /api/projects/:projectId/whiteboards/:boardId
+ * GET /api/projects/:projectId/whiteboard/:boardId
  */
 export function getWhiteboard(projectId, boardId) {
   return apiGet(paths.whiteboards.detail(projectId, boardId));
@@ -20,7 +20,7 @@ export function getWhiteboard(projectId, boardId) {
 
 /**
  * Create a new whiteboard
- * POST /api/projects/:projectId/whiteboards
+ * POST /api/projects/:projectId/whiteboard
  */
 export function createWhiteboard(projectId, title) {
   return apiPost(paths.whiteboards.list(projectId), { title });
@@ -28,7 +28,7 @@ export function createWhiteboard(projectId, title) {
 
 /**
  * Save whiteboard (content = entire strokes array)
- * PUT /api/projects/:projectId/whiteboards/:boardId
+ * PUT /api/projects/:projectId/whiteboard/:boardId
  */
 export function saveWhiteboard(projectId, boardId, content) {
   return apiPut(paths.whiteboards.detail(projectId, boardId), { content });
