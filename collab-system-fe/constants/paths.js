@@ -13,6 +13,7 @@ export const paths = {
       count: "/projects/count",
       detail: (id) => `/projects/${id}`,
       members: (id) => `/projects/${id}/members`,
+      leave: (projectId) => `/projects/${projectId}/leave`,
       memberDetail: (projectId, userId) => `/projects/${projectId}/members/${userId}`,
 
       chat: (id) => `/projects/${id}/messages`,
