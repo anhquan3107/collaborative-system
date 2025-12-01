@@ -30,3 +30,6 @@ export function removeProjectMember(projectId, userId) {
 export function updateMemberRole(projectId, userId, role) {
   return apiPut(paths.projects.memberRole(projectId, userId), { role });
 }
+export function leaveProject(projectId) {
+  return apiDelete(paths.projects.leave(projectId));
+}

@@ -10,6 +10,7 @@ import {
   listProjectMembers,
   removeMember,
   updateRole,
+  leaveProject
 } from "../controllers/projectMemberController.js";
 
 import documentRoutes from "./documentRoutes.js";
@@ -28,6 +29,7 @@ router.delete("/:id", verifyToken, removeProject);
 router.get("/:projectId/members", verifyToken, listProjectMembers);
 router.delete("/:projectId/members/:userId", verifyToken, removeMember);
 router.put("/:projectId/members/:userId/role", verifyToken, updateRole);
+router.delete("/:projectId/leave", verifyToken, leaveProject); 
 
 router.use("/:projectId/documents", documentRoutes);
 router.use("/:projectId/messages", chatRoutes);

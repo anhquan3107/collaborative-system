@@ -3,6 +3,7 @@ import {
   getProjectMembers,
   removeProjectMember,
   updateMemberRole,
+  leaveProject,
 } from "../../../api/project.js";
 
 import { notyf } from "../../../vendor/utils/notify.js";
@@ -13,6 +14,7 @@ export async function loadMembers() {
     const data = await getProjectMembers(projectId);
     projectMembers = data.members || [];
     updateMemberCount();
+    updateLeaveButton();
 }
 
 export function setupMemberListeners() {
@@ -20,6 +22,11 @@ export function setupMemberListeners() {
     if (!btn) return;
 
     btn.addEventListener("click", openMemberModal);
+
+    const leaveBtn = document.getElementById("leaveProjectBtn");
+    if (leaveBtn) {
+        leaveBtn.addEventListener("click", handleLeaveProject);
+    }
 }
 
 function updateMemberCount() {
@@ -29,6 +36,36 @@ function updateMemberCount() {
     }
 }
 
+//Show/hide leave button based on user role
+function updateLeaveButton() {
+    const leaveBtn = document.getElementById("leaveProjectBtn");
+    if (!leaveBtn) return;
+    
+    // Get current user ID from localStorage
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const currentUserId = currentUser.id;
+    
+    // Find current user in members list
+    const currentUserMember = projectMembers.find(m => m.user_id === currentUserId);
+    
+    // ALWAYS show the button
+    leaveBtn.style.display = 'block';
+    
+    // Update button text and style based on role
+    if (currentUserMember && currentUserMember.role === 'owner') {
+        leaveBtn.innerHTML = '<i class="fas fa-crown mr-2"></i> You are the Owner';
+        leaveBtn.classList.add('btn-warning');
+        leaveBtn.classList.remove('btn-outline-danger');
+        leaveBtn.disabled = true;
+        leaveBtn.title = "Owners cannot leave projects. Transfer ownership or delete the project instead.";
+    } else {
+        leaveBtn.innerHTML = '<i class="fas fa-sign-out-alt mr-2"></i> Leave Project';
+        leaveBtn.classList.add('btn-outline-danger');
+        leaveBtn.classList.remove('btn-warning');
+        leaveBtn.disabled = false;
+        leaveBtn.title = "Leave this project";
+    }
+}
 
 function openMemberModal() {
     const list = document.getElementById("projectMembersList");
@@ -80,4 +117,36 @@ async function handleRoleChange(e) {
     const role = e.target.value;
     await updateMemberRole(projectId, userId, role);
     notyf.success("Role updated.");
+}
+
+async function handleLeaveProject() {
+    // Get current user info to check role
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const currentUserId = currentUser.id;
+    const currentUserMember = projectMembers.find(m => m.user_id === currentUserId);
+    
+    // If user is owner, show different message
+    if (currentUserMember && currentUserMember.role === 'owner') {
+        notyf.error("Project owners cannot leave. Transfer ownership or delete the project instead.");
+        return;
+    }
+    
+    // For regular members, proceed with leaving
+    if (!confirm("Are you sure you want to leave this project? You will need to be invited again to rejoin.")) {
+        return;
+    }
+    
+    try {
+        await leaveProject(projectId);
+        notyf.success("You have left the project.");
+        
+        // Redirect to dashboard after leaving
+        setTimeout(() => {
+            window.location.href = '/index.html';
+        }, 1500);
+        
+    } catch (error) {
+        console.error("Failed to leave project:", error);
+        notyf.error(error.message || "Failed to leave project");
+    }
 }
