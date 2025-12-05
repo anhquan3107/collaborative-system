@@ -11,8 +11,6 @@ import { notyf } from "../../../vendor/utils/notify.js";
 
 window.openProject = openProject;
 (async () => {
-  // 🧹 Always clear recent project state when opening the website
-  clearRecentProject();
 
   const token = localStorage.getItem("token");
 

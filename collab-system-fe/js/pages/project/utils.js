@@ -45,3 +45,9 @@ export function updateWhiteboardStatus(status, className) {
     }
 }
 
+export function backToDashboard() {
+    window.location.href = "../../index.html"; 
+}
+
+
+

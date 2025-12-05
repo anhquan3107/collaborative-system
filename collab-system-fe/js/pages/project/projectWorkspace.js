@@ -5,7 +5,7 @@ import { loadAllFiles } from "./fileList.js";
 import { setupCreateFileListeners } from "./fileCreate.js";
 import { loadMembers, setupMemberListeners } from "./members.js";
 import { loadPendingInvitations, setupInvitationListeners } from "./invitations.js";
-import { showPlaceholder } from "./utils.js";
+import { showPlaceholder, backToDashboard } from "./utils.js";
 
 // Import whiteboard initialization
 import { initWhiteboardCanvas } from "./whiteboard/whiteboardCanvas.js";
@@ -18,8 +18,11 @@ export const projectName =
 document.addEventListener("DOMContentLoaded", async () => {
     if (!projectId) {
         alert("Project ID missing");
+        backToDashboard();
         return;
     }
+document.getElementById("backToDashboardBtn")
+        .addEventListener("click", backToDashboard);
 
     console.log("🚀 Initializing workspace for project:", projectId, projectName);
 
