@@ -1,4 +1,3 @@
-// frontend/js/pages/call.js
 
 // 1. Parse URL Parameters
 const urlParams = new URLSearchParams(window.location.search);

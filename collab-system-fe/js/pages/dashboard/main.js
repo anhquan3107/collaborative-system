@@ -1,85 +1,75 @@
+// main.js (root entry)
 import { getCurrentUser } from "../../../api/user.js";
+import { 
+  initProjectManager, 
+  clearRecentProject, 
+  openProject
+} from "./projectManager.js";
 import "./invitationManager.js";
 import { notyf } from "../../../vendor/utils/notify.js";
 
+
+window.openProject = openProject;
 (async () => {
+  // 🧹 Always clear recent project state when opening the website
+  clearRecentProject();
+
   const token = localStorage.getItem("token");
 
-  const navUserEmail = document.getElementById("navUserEmail");
-  const userMenu = document.getElementById("userMenu");
-  const guestMenu = document.getElementById("guestMenu");
-  const guestMenu2 = document.getElementById("guestMenu2");
-
-  // -----------------------------
-  // CASE 1: No token → Guest user
-  // -----------------------------
   if (!token) {
-    console.log("Viewing as Guest");
-
-    if (navUserEmail) navUserEmail.textContent = "Guest";
-
-    // Show: Login + Register
-    guestMenu?.classList.remove("d-none");
-    guestMenu2?.classList.remove("d-none");
-
-    // Hide: user dropdown
-    userMenu?.classList.add("d-none");
-
+    console.log("Viewing as guest");
+    setupGuestUI();
     return;
   }
 
-  // -----------------------------
-  // CASE 2: Has token → load user
-  // -----------------------------
   try {
     const data = await getCurrentUser();
-    console.log("✅ Logged in as:", data.user);
 
-    // Update username
-    if (navUserEmail) {
-      navUserEmail.textContent = data.user.username || data.user.email;
-    }
+    setupUserUI(data.user);
 
-    // Show user menu, hide guest menu
-    userMenu?.classList.remove("d-none");
-    guestMenu?.classList.add("d-none");
-    guestMenu2?.classList.add("d-none");
-
+    //  Load dashboard only after user is authenticated
+    initProjectManager();
+    
   } catch (err) {
-    console.error("⚠️ Invalid or expired token, clearing it...", err);
+    console.log("Invalid token → reset", err);
 
-    // Reset to guest mode
     localStorage.removeItem("token");
-
-    if (navUserEmail) navUserEmail.textContent = "Guest";
-
-    guestMenu?.classList.remove("d-none");
-    guestMenu2?.classList.remove("d-none");
-    userMenu?.classList.add("d-none");
+    setupGuestUI();
   }
 })();
 
-// --------------------------------
+// ------------------------------
+// UI functions
+// ------------------------------
+function setupGuestUI() {
+  document.getElementById("navUserEmail").textContent = "Guest";
+  document.getElementById("guestMenu").classList.remove("d-none");
+  document.getElementById("guestMenu2")?.classList.remove("d-none");
+  document.getElementById("userMenu").classList.add("d-none");
+}
+
+function setupUserUI(user) {
+  document.getElementById("navUserEmail").textContent = user.username;
+  document.getElementById("guestMenu").classList.add("d-none");
+  document.getElementById("guestMenu2")?.classList.add("d-none");
+  document.getElementById("userMenu").classList.remove("d-none");
+}
+
+// ------------------------------
 // LOGOUT HANDLER
-// --------------------------------
+// ------------------------------
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
   localStorage.removeItem("token");
-  
-  // Clear last project history on logout for privacy
-  localStorage.removeItem("last_project_id");
-  localStorage.removeItem("last_project_name");
-  localStorage.removeItem("last_project_date");
-  
+  clearRecentProject(); // 
   window.location.href = "index.html";
 });
 
-// --------------------------------
-// CHAT LINK HANDLER (Protect Chat)
-// --------------------------------
+// ------------------------------
+// Chat protection
+// ------------------------------
 document.getElementById("navChatLink")?.addEventListener("click", (e) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    e.preventDefault(); // Stop navigation
+  if (!localStorage.getItem("token")) {
+    e.preventDefault();
     notyf.error("Please login first to access Chat");
   }
 });
