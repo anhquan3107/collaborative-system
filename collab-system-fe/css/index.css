@@ -1,0 +1,20 @@
+ /* Custom class for 5 columns on large screens (20% width) */
+        @media (min-width: 1200px) {
+            .col-xl-20 {
+                -webkit-box-flex: 0;
+                -ms-flex: 0 0 20%;
+                flex: 0 0 20%;
+                max-width: 20%;
+            }
+        }
+        
+        /* Project Card Hover Effect */
+        .project-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            height: 100%; 
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        }

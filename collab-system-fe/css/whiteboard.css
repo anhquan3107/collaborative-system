@@ -1,0 +1,60 @@
+.workspace {
+        display: flex;
+        height: calc(100vh - 80px);
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      #sidebarWrapper {
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #e5e7eb;
+        padding-right: 1rem;
+      }
+
+      #boardList {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+      }
+
+      #whiteboardWrapper {
+        flex: 1;
+        display: none;
+        flex-direction: column;
+      }
+
+      #noBoardPlaceholder {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 1.4rem;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+      }
+
+      #whiteboardCanvas {
+        flex: 1;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 6px;
+        cursor: crosshair;
+      }
+
+      .board-item {
+        padding: 0.5rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f1f1;
+      }
+
+      .board-item:hover {
+        background: #f8f9fc;
+      }
+
+      .board-item.active {
+        background: #e3f2fd;
+        border-left: 3px solid #007bff;
+      }
