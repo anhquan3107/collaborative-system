@@ -115,10 +115,22 @@ async function handleRemove(e) {
 async function handleRoleChange(e) {
     const userId = e.target.dataset.id;
     const role = e.target.value;
+    try {
     await updateMemberRole(projectId, userId, role);
     notyf.success("Role updated.");
+    //re-fetch new members from server and update UI
+    //make the owner see the new role of the memmber after they change it
+    await loadMembers();
+     openMemberModal();
+    }
+catch (err) {
+        console.error("Failed to update role:", err);
+        notyf.error(err.message || "Failed to update role");
+        // optionally reset select value to previous role
+        await loadMembers();
+         openMemberModal();
+    }
 }
-
 async function handleLeaveProject() {
     // Get current user info to check role
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
