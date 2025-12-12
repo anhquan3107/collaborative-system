@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Forgot Password</title>
+    <title>SB Admin 2 - Verify OTP</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -21,7 +21,6 @@
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
-
 <body class="bg-gradient-primary">
 <div class="container">
     <div class="row justify-content-center">
@@ -30,26 +29,23 @@
                 <div class="card-body p-0">
                     <div class="p-5">
                         <div class="text-center">
-                            <h1 class="h4 text-gray-900 mb-2">Forgot Your Password?</h1>
-                            <p class="mb-4">Enter your email and we will send you an OTP to reset your password.</p>
+                            <h1 class="h4 text-gray-900 mb-2">Verify OTP</h1>
+                            <p class="mb-4">Enter the OTP we sent to your email.</p>
                         </div>
-                        <form class="user" id="forgotForm">
+                        <form id="otpForm" class="user">
                             <div class="form-group">
-                                <input type="email" name="email"
+                                <input type="text" name="otp"
                                        class="form-control form-control-user"
-                                       placeholder="Enter Email Address..."
+                                       placeholder="Enter OTP"
                                        required>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-user btn-block" id="btnSendOtp">
-                                Send OTP
+                            <button type="submit" class="btn btn-primary btn-user btn-block" id="btnVerifyOtp">
+                                Verify OTP
                             </button>
                         </form>
                         <hr>
                         <div class="text-center">
-                            <a class="small" href="register.html">Create an Account!</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="small" href="login.html">Already have an account? Login!</a>
+                            <a class="small" href="forgot-password.html">Back to Forgot Password</a>
                         </div>
                     </div>
                 </div>
@@ -59,7 +55,7 @@
 </div>
 </body>
 
-    <!-- Bootstrap core JavaScript-->
+ <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
@@ -68,7 +64,7 @@
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
-    <script src="js/pages/password/forgot-password.js"></script>
-</body>
 
+    <script src="js/pages/password/verify-otp.js"></script>
+</body>
 </html>
