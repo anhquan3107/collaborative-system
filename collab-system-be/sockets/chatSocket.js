@@ -27,6 +27,13 @@ export function initChatSocket(io) {
         
         // 2. Broadcast to everyone in the project (including sender)
         io.to(`project_${projectId}`).emit("receive_chat_message", savedMsg);
+        io.emit("new_message_notification", {
+            projectId,
+            username: savedMsg.username,
+            content: savedMsg.content,
+            timestamp: savedMsg.created_at
+        });
+
         
       } catch (err) {
         console.error("Chat Error:", err);

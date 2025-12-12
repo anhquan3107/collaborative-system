@@ -7,6 +7,8 @@ import {
 } from "./projectManager.js";
 import "./invitationManager.js";
 import { notyf } from "../../../vendor/utils/notify.js";
+import { initMessageManager, resetUnreadMessages } from "./messageManager.js";
+
 
 
 window.openProject = openProject;
@@ -27,6 +29,7 @@ window.openProject = openProject;
 
     //  Load dashboard only after user is authenticated
     initProjectManager();
+    initMessageManager();
     
   } catch (err) {
     console.log("Invalid token → reset", err);
@@ -71,3 +74,4 @@ document.getElementById("navChatLink")?.addEventListener("click", (e) => {
     notyf.error("Please login first to access Chat");
   }
 });
+
