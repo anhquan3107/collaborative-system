@@ -2,6 +2,7 @@ import { getProjects } from "../../../api/project.js";
 import { getChatHistory } from "../../../api/chat.js";
 import { getCurrentUser } from "../../../api/user.js";
 import { checkAuth } from "../../../vendor/utils/auth.js";
+import { initChatMessageManager } from "./messageManager.js";
 // State
 let activeProjectId = null;
 let currentUser = null;
@@ -126,6 +127,7 @@ function initSocket() {
         document.getElementById('connectionStatus').textContent = 'Online';
         document.getElementById('connectionStatus').className = 'text-success small';
     });
+    initChatMessageManager(() => socket);
 
     // Receive messages for current project only
     socket.on('receive_chat_message', (msg) => {
@@ -134,7 +136,7 @@ function initSocket() {
             scrollToBottom();
         }
     });
-
+    
     // Call invite
     socket.on("incoming_call_invite", ({ projectId, callerName }) => {
         if (activeProjectId == projectId) {

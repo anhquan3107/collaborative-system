@@ -27,12 +27,18 @@ export async function createMessage(projectId, userId, content) {
  */
 export async function getProjectMessages(projectId, limit = 50) {
   const [rows] = await db.query(
-    `SELECT m.id, m.content, m.created_at, m.user_id, u.username 
-     FROM messages m 
-     JOIN users u ON m.user_id = u.id 
-     WHERE m.project_id = ? 
-     ORDER BY m.created_at ASC 
-     LIMIT ?`,
+    `
+    SELECT *
+    FROM (
+      SELECT m.id, m.content, m.created_at, m.user_id, u.username
+      FROM messages m
+      JOIN users u ON m.user_id = u.id
+      WHERE m.project_id = ?
+      ORDER BY m.created_at DESC
+      LIMIT ?
+    ) AS latest
+    ORDER BY latest.created_at ASC
+    `,
     [projectId, limit]
   );
   return rows;
