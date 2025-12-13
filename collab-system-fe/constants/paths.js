@@ -38,5 +38,10 @@ export const paths = {
       list: (projectId) => `/projects/${projectId}/whiteboards`,
       detail: (projectId, boardId) => `/projects/${projectId}/whiteboards/${boardId}`,
 },
+    password: {
+      forgot: "/password/forgot-password",
+      verifyOtp: "/password/verify-otp",
+      reset: "/password/reset-password",
+    },
 
 };
