@@ -6,7 +6,7 @@ import { setupCreateFileListeners } from "./fileCreate.js";
 import { loadMembers, setupMemberListeners } from "./members.js";
 import { loadPendingInvitations, setupInvitationListeners } from "./invitations.js";
 import { showPlaceholder, backToDashboard } from "./utils.js";
-
+import { initProjectWorkspacePopup } from "../project/messageManager.js";
 // Import whiteboard initialization
 import { initWhiteboardCanvas } from "./whiteboard/whiteboardCanvas.js";
 import { initWhiteboardSocket } from "./whiteboard/whiteboardSocket.js";
@@ -33,6 +33,7 @@ document.getElementById("backToDashboardBtn")
     initDocumentSocket();
     initWhiteboardCanvas();  
     initWhiteboardSocket();  
+    initProjectWorkspacePopup();
     
     // Load data
     await loadAllFiles();
