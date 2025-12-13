@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
-import pool from "../config/database.js";  // your MySQL connection
+import { findUserByEmail, updateUserPassword } from "../models/userModel.js";
+
 
 // Setup SMTP
 const transporter = nodemailer.createTransport({
@@ -16,12 +17,9 @@ export const sendOtp = async (req, res) => {
     try {
     const { email } = req.body;
   // Check if email exists
-    const [rows] = await pool.query(
-        "SELECT * FROM users WHERE email = ?",
-        [email]
-    );
-    if (rows.length === 0) {
-        return res.json({ success: false, message: "Email not registered" });
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return res.json({ success: false, message: "Email not registered" });
     }
     //create otp
     const otp = Math.floor(100000 + Math.random() * 900000);
@@ -67,10 +65,7 @@ export const resetPassword = async (req, res) => {
     const { newPassword } = req.body;
     const email = req.session.email;
     const hashed = await bcrypt.hash(newPassword, 10);
-    await pool.query(
-        "UPDATE users SET password = ? WHERE email = ?",
-        [hashed, email]
-    );
+     await updateUserPassword(email, hashed);
 
     req.session.destroy();
 

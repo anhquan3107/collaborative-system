@@ -1,3 +1,5 @@
+import { forgotPassword } from "../../../api/password.js";
+
 document.getElementById("forgotForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = document.getElementById("btnSendOtp");
@@ -6,13 +8,7 @@ document.getElementById("forgotForm").addEventListener("submit", async (e) => {
 
     const email = e.target.email.value;
 
-    const res = await fetch("/password/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-    });
-
-    const data = await res.json();
+    const data = await forgotPassword(email);
 
     if (data.success) {
         alert("OTP sent to your email!");

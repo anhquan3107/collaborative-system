@@ -12,7 +12,7 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+ 
 const app = express();
 
 app.use(cors());
@@ -24,8 +24,6 @@ app.use(session({
     saveUninitialized: true,
     cookie: { maxAge: 5 * 60 * 1000 } // OTP expires in 5 minutes
 }));
-app.use("/auth", authRoutes);           // login, register
-app.use("/password", passwordRoutes);   // forgot-password, otp, reset
 
 app.use(express.static(path.join(__dirname, "../collab-system-fe")));
 app.use("/api", routes);
