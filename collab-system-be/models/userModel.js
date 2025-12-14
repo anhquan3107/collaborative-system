@@ -17,3 +17,10 @@ export async function createUser({ username, email, password }) {
   );
   return result.insertId;
 }
+
+export async function updateUserPassword(email, hashedPassword) {
+  await db.query(
+    "UPDATE users SET password = ? WHERE email = ?",
+    [hashedPassword, email]
+  );
+}
