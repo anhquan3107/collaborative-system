@@ -71,6 +71,9 @@
         .btn-primary { background-color: #4e73df; }
         .btn-hangup { background-color: #e74a3b; }
         .btn-mute { background-color: #4e73df; }
+        .btn-off {
+            background-color: #e74a3b !important; /* red */
+        }
         
         .status-overlay {
             position: absolute;
