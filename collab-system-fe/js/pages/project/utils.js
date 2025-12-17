@@ -22,6 +22,10 @@ export function showEditor() {
 export function showWhiteboard() {
     document.getElementById("noDocPlaceholder").style.display = "none";
     document.getElementById("editorWrapper").style.display = "none";
+    // HIDE WHITEBOARD PLACEHOLDER 
+    const noBoard = document.getElementById("noBoardPlaceholder");
+    if (noBoard) noBoard.style.display = "none";
+
     // Show whiteboard wrapper
     const whiteboardWrapper = document.getElementById("whiteboardWrapper");
     if (whiteboardWrapper) {

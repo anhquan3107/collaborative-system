@@ -21,7 +21,6 @@
 
       #whiteboardWrapper {
         flex: 1;
-        display: none;
         flex-direction: column;
       }
 
@@ -35,7 +34,12 @@
         border: 2px dashed #dee2e6;
         border-radius: 8px;
       }
-
+      #whiteboard-toolbar {
+      display: flex;
+      flex-shrink: 0;
+      gap: 6px;
+      margin-bottom: 8px;
+      }
       #whiteboardCanvas {
         flex: 1;
         border: 1px solid #ddd;
@@ -58,3 +62,4 @@
         background: #e3f2fd;
         border-left: 3px solid #007bff;
       }
+      
