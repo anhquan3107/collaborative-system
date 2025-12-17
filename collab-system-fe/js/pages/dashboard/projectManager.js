@@ -18,8 +18,7 @@ const projectList = document.getElementById("projectList");
 export function initProjectManager() {
   setupCreateProjectModal();
   setupDeleteHandler();
-  loadDashboardStats();
-  loadLastOpenedProject();   // <--- CLEAR/LOAD RECENT PROJECT
+  loadLastOpenedProject();
 }
 
 export function openProject(projectId, projectName) {
@@ -66,7 +65,7 @@ export function loadLastOpenedProject() {
 // ------------------------------
 // Load Dashboard Stats
 // ------------------------------
-export async function loadDashboardStats() {
+export async function loadProjectStats() {
   await Promise.all([loadStats(), loadProjects()]);
 }
 
@@ -91,7 +90,7 @@ async function handleCreateProject() {
   $("#createProjectModal").modal("hide");
   document.getElementById("createProjectForm").reset();
   notyf.success("Created!");
-  loadDashboardStats();
+  loadProjectStats();
 }
 
 // ------------------------------
@@ -110,7 +109,7 @@ function setupDeleteHandler() {
       loadLastOpenedProject();
     }
 
-    loadDashboardStats();
+    loadProjectStats();
   };
 }
 

@@ -3,14 +3,15 @@ import { getCurrentUser } from "../../../api/user.js";
 import { 
   initProjectManager, 
   clearRecentProject, 
-  openProject
+  openProject,
+  loadProjectStats
 } from "./projectManager.js";
-import "./invitationManager.js";
+import { loadInvitations } from "./invitationManager.js";
 import { notyf } from "../../../vendor/utils/notify.js";
-import { initMessageManager, resetUnreadMessages } from "./messageManager.js";
+import { initMessageManager } from "./messageManager.js";
 
 
-
+window.reloadDashboard = reloadDashboard;
 window.openProject = openProject;
 (async () => {
 
@@ -30,6 +31,8 @@ window.openProject = openProject;
     //  Load dashboard only after user is authenticated
     initProjectManager();
     initMessageManager();
+    reloadDashboard();
+    setInterval(loadInvitations, 30000);
     
   } catch (err) {
     console.log("Invalid token → reset", err);
@@ -74,4 +77,26 @@ document.getElementById("navChatLink")?.addEventListener("click", (e) => {
     notyf.error("Please login first to access Chat");
   }
 });
+
+export async function reloadDashboard() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.warn("Reload skipped: no token");
+    return;
+  }
+
+  console.log("🔄 Reloading dashboard…");
+
+  try {
+    await Promise.all([
+      loadProjectStats(),
+      loadInvitations()
+    ]);
+  } catch (err) {
+    console.error("Dashboard reload failed:", err);
+    notyf.error("Failed to reload dashboard");
+  }
+}
+
+
 

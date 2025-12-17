@@ -1,15 +1,14 @@
 import {
   createProjectInvitation,
   getProjectInvitations,
-  cancelInvitation as deleteInvitation,
   getPendingInvitationsByEmail,
-  updateInvitationStatus,
+  setInvitationStatusById,
+  setInvitationStatusByToken,
   getInvitationByToken,
 } from "../models/projectInvitationModel.js";
 import {
   addProjectMember,
   isProjectOwner,
-  isProjectMember,
 } from "../models/projectMemberModel.js";
 
 export async function inviteToProject(req, res) {
@@ -73,15 +72,19 @@ export async function getInvitations(req, res) {
 export async function cancelInvitation(req, res) {
   try {
     const projectId = Number(req.params.projectId);
-    const { invitationId } = req.params;
+    const invitationId = Number(req.params.invitationId);
 
-    //Check if user is project owner
     const isOwner = await isProjectOwner(projectId, req.user.id);
     if (!isOwner) {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const success = await deleteInvitation(Number(invitationId), req.user.id);
+    const success = await setInvitationStatusById(
+      invitationId,
+      "cancelled",
+      req.user.id
+    );
+
     if (!success) {
       return res.status(404).json({ message: "Invitation not found" });
     }
@@ -140,18 +143,19 @@ export async function declineInvitation(req, res) {
 
     const invitation = await getInvitationByToken(token);
     if (!invitation) {
-      return res
-        .status(404)
-        .json({ message: "Invitation not found or expired" });
+      return res.status(404).json({
+        message: "Invitation not found or expired",
+      });
     }
 
     if (invitation.invitee_email !== req.user.email) {
-      return res
-        .status(403)
-        .json({ message: "This invitation is not for you" });
+      return res.status(403).json({
+        message: "This invitation is not for you",
+      });
     }
 
-    await updateInvitationStatus(token, "declined");
+    await setInvitationStatusByToken(token, "declined");
+
     res.json({ message: "Invitation declined" });
   } catch (err) {
     console.error("declineInvitation error:", err);

@@ -127,7 +127,7 @@ function initSocket() {
         document.getElementById('connectionStatus').textContent = 'Online';
         document.getElementById('connectionStatus').className = 'text-success small';
     });
-    initChatMessageManager(() => socket);
+    initChatMessageManager(socket);
 
     // Receive messages for current project only
     socket.on('receive_chat_message', (msg) => {

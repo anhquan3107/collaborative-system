@@ -110,6 +110,7 @@ async function handleRemove(e) {
     await removeProjectMember(projectId, userId);
     notyf.success("Member removed.");
     await loadMembers();
+    openMemberModal();
 }
 
 async function handleRoleChange(e) {
@@ -128,7 +129,7 @@ catch (err) {
         notyf.error(err.message || "Failed to update role");
         // optionally reset select value to previous role
         await loadMembers();
-         openMemberModal();
+        openMemberModal();
     }
 }
 async function handleLeaveProject() {
