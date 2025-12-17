@@ -44,9 +44,44 @@
         <div id="noBoardPlaceholder">
           Choose a whiteboard to start drawing
         </div>
-
+       
         <!-- WHITEBOARD CANVAS -->
-        <div id="whiteboardWrapper">
+    <div id="whiteboardWrapper">
+           <!-- WHITEBOARD TOOLBAR -->
+      <div id="whiteboard-toolbar" class="mb-2 d-flex align-items-center flex-wrap">
+
+          <!-- Brush -->
+        <button id="toolBrush" class="btn btn-sm btn-light border mr-1" title="Brush">
+            <i class="fas fa-paint-brush"></i>
+        </button>
+
+            <!-- Eraser -->
+        <button id="toolEraser" class="btn btn-sm btn-light border mr-3" title="Eraser">
+            <i class="fas fa-eraser"></i>
+        </button>
+
+            <!-- Brush Size -->
+        <div class="mr-3">
+        <label class="small mb-0">Size</label>
+          <input id="brushSize" type="range" min="1" max="40" value="5" />
+        </div>
+
+            <!-- Color -->
+        <div class="mr-3">
+          <label class="small mb-0">Color</label>
+            <input id="brushColor" type="color" value="#000000" />
+        </div>
+
+            <!-- Bucket -->
+        <button id="toolBucket" class="btn btn-sm btn-light border mr-3" title="Fill">
+          <i class="fas fa-fill-drip"></i>
+        </button>
+
+            <!-- Clear -->
+        <button id="clearBoardBtn" class="btn btn-sm btn-outline-danger ml-auto">
+          <i class="fas fa-trash"></i> Clear
+        </button>
+      </div>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 id="boardTitle">Select a whiteboard</h5>
             <div id="whiteboardStatus" class="text-muted small">Not connected</div>
@@ -57,7 +92,7 @@
           <div class="mt-2">
             <small class="text-muted" id="whiteboardLastSaved">Last saved: Never</small>
           </div>
-        </div>
+    </div>
 
       </div>
     </div>

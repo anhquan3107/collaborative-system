@@ -10,7 +10,7 @@ import { initProjectWorkspacePopup } from "../project/messageManager.js";
 // Import whiteboard initialization
 import { initWhiteboardCanvas } from "./whiteboard/whiteboardCanvas.js";
 import { initWhiteboardSocket } from "./whiteboard/whiteboardSocket.js";
-
+import { initWhiteboardEditor } from "./whiteboard/whiteboardEditor.js";   
 export const projectId = new URLSearchParams(window.location.search).get("projectId");
 export const projectName =
     new URLSearchParams(window.location.search).get("projectName") || "Untitled";
@@ -33,8 +33,9 @@ document.getElementById("backToDashboardBtn")
     initDocumentSocket();
     initWhiteboardCanvas();  
     initWhiteboardSocket();  
+
     initProjectWorkspacePopup();
-    
+    initWhiteboardEditor();
     // Load data
     await loadAllFiles();
     
