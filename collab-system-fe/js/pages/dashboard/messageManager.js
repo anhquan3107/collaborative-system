@@ -153,3 +153,8 @@ function showMessageNotification(msg) {
     window.location.href = `../../chat.html?projectId=${msg.projectId}`;
   });
 }
+
+export function clearRecentMessages() {
+    localStorage.removeItem("unreadCount");
+    localStorage.removeItem("recentMessages");
+}

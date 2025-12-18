@@ -8,7 +8,7 @@ import {
 } from "./projectManager.js";
 import { loadInvitations } from "./invitationManager.js";
 import { notyf } from "../../../vendor/utils/notify.js";
-import { initMessageManager } from "./messageManager.js";
+import { initMessageManager, clearRecentMessages } from "./messageManager.js";
 
 
 window.reloadDashboard = reloadDashboard;
@@ -64,7 +64,8 @@ function setupUserUI(user) {
 // ------------------------------
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
   localStorage.removeItem("token");
-  clearRecentProject(); // 
+  clearRecentProject(); 
+  clearRecentMessages(); 
   window.location.href = "index.html";
 });
 
