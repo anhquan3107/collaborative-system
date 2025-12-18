@@ -1,14 +1,14 @@
-// frontend/js/pages/project/whiteboard/whiteboardCanvas.js
 import { currentBoardId, strokes, redrawCanvas, setCanvasContext } from "./whiteboardState.js";
 import { queueWhiteboardSave } from "./whiteboardSave.js";
-import { broadcastStroke } from "./whiteboardSocket.js";
+import { broadcastPoint, broadcastStrokeEnd } from "./whiteboardSocket.js";
 
 let drawing = false;
+let currentStroke = null;
 
 export function initWhiteboardCanvas() {
     const canvas = document.getElementById("whiteboardCanvas");
     const ctx = canvas.getContext("2d");
-    
+
     setCanvasContext(canvas, ctx);
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
@@ -28,34 +28,55 @@ function resizeCanvas() {
 
 function startDrawing(e) {
     drawing = true;
-    const stroke = { 
-        color: "#000000", 
-        size: 2, 
-        points: [] 
+
+    currentStroke = {
+        id: crypto.randomUUID(),
+        color: "#000000",
+        size: 4,
+        points: []
     };
-    strokes.push(stroke);
+
+    strokes.push(currentStroke);
     addPoint(e);
 }
 
 function draw(e) {
-    if (!drawing) return;
-    addPoint(e);
-    broadcastStroke(strokes[strokes.length - 1]);
+    if (!drawing || !currentStroke) return;
+
+    const point = addPoint(e);
+
+    broadcastPoint({
+        boardId: currentBoardId.value,
+        strokeId: currentStroke.id,
+        point,
+        color: currentStroke.color,
+        size: currentStroke.size
+    });
+
     redrawCanvas();
 }
 
 function stopDrawing() {
+    if (!drawing || !currentStroke) return;
+
     drawing = false;
+
+    broadcastStrokeEnd({
+        boardId: currentBoardId.value,
+        strokeId: currentStroke.id
+    });
+
+    currentStroke = null;
     queueWhiteboardSave();
 }
 
 function addPoint(e) {
-    const canvas = document.getElementById("whiteboardCanvas");
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const rect = e.target.getBoundingClientRect();
+    const point = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
 
-    if (strokes.length > 0) {
-        strokes[strokes.length - 1].points.push({ x, y });
-    }
+    currentStroke.points.push(point);
+    return point;
 }

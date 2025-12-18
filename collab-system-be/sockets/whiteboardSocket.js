@@ -1,3 +1,5 @@
+const liveWhiteboards = new Map();
+
 export function initWhiteboardSocket(io) {
     
     io.on("connection", (socket) => {
@@ -12,9 +14,16 @@ export function initWhiteboardSocket(io) {
 
             console.log(`🎨 Socket ${socket.id} joined ${room}`);
 
+            // 🔥 SEND LIVE SNAPSHOT IF EXISTS
+            const snapshot = liveWhiteboards.get(whiteboardId);
+            if (snapshot) {
+                socket.emit("whiteboard_snapshot", snapshot);
+            }
+
             const roomSize = io.sockets.adapter.rooms.get(room)?.size || 0;
             console.log(`👥 Room ${room} now has ${roomSize} users`);
         });
+
 
         /**
          * 2. LEAVE WHITEBOARD ROOM
@@ -28,14 +37,36 @@ export function initWhiteboardSocket(io) {
         /**
          * 3. LIVE DRAWING EVENT
          **/
-        socket.on("whiteboard_stroke", ({ boardId, stroke }) => {
-            const room = `whiteboard_${boardId}`;
+        socket.on("whiteboard_point", ({ boardId, strokeId, point, color, size }) => {
+            if (!liveWhiteboards.has(boardId)) {
+                liveWhiteboards.set(boardId, []);
+            }
 
-            io.to(room).emit("whiteboard_stroke", {
+            const strokes = liveWhiteboards.get(boardId);
+            let stroke = strokes.find(s => s.id === strokeId);
+
+            if (!stroke) {
+                stroke = { id: strokeId, color, size, points: [] };
+                strokes.push(stroke);
+            }
+
+            stroke.points.push(point);
+
+            socket.to(`whiteboard_${boardId}`).emit("whiteboard_point", {
                 boardId,
-                stroke,
+                strokeId,
+                point,
+                color,
+                size
             });
         });
+
+        socket.on("whiteboard_stroke_end", ({ boardId, strokeId }) => {
+            socket.to(`whiteboard_${boardId}`).emit("whiteboard_stroke_end", {
+                strokeId
+            });
+        });
+
 
         /**
          * 4. CURSOR POSITION BROADCAST (optional)
