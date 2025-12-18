@@ -9,7 +9,6 @@ import {
 import {
   listProjectMembers,
   removeMember,
-  updateRole,
   leaveProject
 } from "../controllers/projectMemberController.js";
 
@@ -28,7 +27,6 @@ router.delete("/:id", verifyToken, removeProject);
 
 router.get("/:projectId/members", verifyToken, listProjectMembers);
 router.delete("/:projectId/members/:userId", verifyToken, removeMember);
-router.put("/:projectId/members/:userId/role", verifyToken, updateRole);
 router.delete("/:projectId/leave", verifyToken, leaveProject); 
 
 router.use("/:projectId/documents", documentRoutes);

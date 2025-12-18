@@ -83,10 +83,6 @@ function openMemberModal() {
                   m.role === "owner"
                       ? `<span class="badge badge-primary">Owner</span>`
                       : `
-                        <select class="role-select" data-id="${m.user_id}">
-                            <option value="editor" ${m.role==="editor"?"selected":""}>Editor</option>
-                            <option value="viewer" ${m.role==="viewer"?"selected":""}>Viewer</option>
-                        </select>
                         <button class="btn btn-sm btn-danger remove-btn" data-id="${m.user_id}">
                             Remove
                         </button>
@@ -100,9 +96,6 @@ function openMemberModal() {
     list.querySelectorAll(".remove-btn").forEach(btn =>
         btn.addEventListener("click", handleRemove)
     );
-    list.querySelectorAll(".role-select").forEach(sel =>
-        sel.addEventListener("change", handleRoleChange)
-    );
 }
 
 async function handleRemove(e) {
@@ -113,32 +106,12 @@ async function handleRemove(e) {
     openMemberModal();
 }
 
-async function handleRoleChange(e) {
-    const userId = e.target.dataset.id;
-    const role = e.target.value;
-    try {
-    await updateMemberRole(projectId, userId, role);
-    notyf.success("Role updated.");
-    //re-fetch new members from server and update UI
-    //make the owner see the new role of the memmber after they change it
-    await loadMembers();
-     openMemberModal();
-    }
-catch (err) {
-        console.error("Failed to update role:", err);
-        notyf.error(err.message || "Failed to update role");
-        // optionally reset select value to previous role
-        await loadMembers();
-        openMemberModal();
-    }
-}
 async function handleLeaveProject() {
     // Get current user info to check role
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
     const currentUserId = currentUser.id;
     const currentUserMember = projectMembers.find(m => m.user_id === currentUserId);
     
-    // If user is owner, show different message
     if (currentUserMember && currentUserMember.role === 'owner') {
         notyf.error("Project owners cannot leave. Transfer ownership or delete the project instead.");
         return;

@@ -15,7 +15,6 @@ export const paths = {
       members: (id) => `/projects/${id}/members`,
       leave: (projectId) => `/projects/${projectId}/leave`,
       memberDetail: (projectId, userId) => `/projects/${projectId}/members/${userId}`,
-      memberRole: (projectId, userId) => `/projects/${projectId}/members/${userId}/role`,
 
       chat: (id) => `/projects/${id}/messages`,
     },

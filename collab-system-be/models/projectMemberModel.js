@@ -102,13 +102,3 @@ export async function getUserProjectRole(projectId, userId) {
   return rows[0]?.role || null;
 }
 
-/**
- * Update a member's role
- */
-export async function updateMemberRole(projectId, userId, role) {
-  const [result] = await db.query(
-    "UPDATE project_members SET role = ? WHERE project_id = ? AND user_id = ?",
-    [role, projectId, userId]
-  );
-  return result.affectedRows > 0;
-}
