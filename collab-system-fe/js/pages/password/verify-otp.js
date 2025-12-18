@@ -1,4 +1,5 @@
 import { verifyOtp } from "../../../api/password.js";
+import {notyf} from "../../../vendor/utils/notify.js";
 document.getElementById("otpForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = document.getElementById("btnVerifyOtp");
@@ -8,8 +9,13 @@ document.getElementById("otpForm").addEventListener("submit", async (e) => {
 
     const data = await verifyOtp(otp);
     if (data.success) {
+        notyf.success("OTP verified!");
+        setTimeout(() => {
         window.location.href = "reset-password.html";
-    } else {
-        alert(data.message);
-    }
+    }, 1500);
+} else {
+    notyf.error(data.message);
+    btn.disabled = false;
+    btn.innerText = "Send OTP";
+}
 });

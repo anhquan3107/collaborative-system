@@ -1,4 +1,5 @@
 import { resetPassword } from "../../../api/password.js";
+import {notyf} from "../../../vendor/utils/notify.js";
 
 document.getElementById("resetForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -8,9 +9,13 @@ document.getElementById("resetForm").addEventListener("submit", async (e) => {
      const data = await resetPassword(newPassword);
 
     if (data.success) {
-        alert("Password updated!");
+        notyf.success("Password updated!");
+        setTimeout(() => {
         window.location.href = "login.html";
-    } else {
-        alert(data.message);
-    }
+    }, 1500);
+} else {
+    notyf.error(data.message);
+    btn.disabled = false;
+    btn.innerText = "Send OTP";
+}
 });
