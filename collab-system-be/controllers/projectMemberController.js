@@ -1,7 +1,6 @@
 import {
   getProjectMembers,
   removeProjectMember,
-  updateMemberRole,
   isProjectOwner,
   getUserProjectRole,
 } from "../models/projectMemberModel.js";
@@ -49,39 +48,6 @@ export async function removeMember(req, res) {
     res.json({ message: "Member removed" });
   } catch (err) {
     console.error("removeMember error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-}
-
-export async function updateRole(req, res) {
-  try {
-    const projectId = Number(req.params.projectId);
-    const memberId = Number(req.params.userId);
-    const { role } = req.body;
-
-    if (!["editor", "viewer"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-
-    const isOwner = await isProjectOwner(projectId, req.user.id);
-    if (!isOwner) {
-      return res
-        .status(403)
-        .json({ message: "Only project owners can update roles" });
-    }
-
-    if (memberId === req.user.id) {
-      return res.status(400).json({ message: "Cannot change owner role" });
-    }
-
-    const success = await updateMemberRole(projectId, memberId, role);
-    if (!success) {
-      return res.status(404).json({ message: "Member not found" });
-    }
-
-    res.json({ message: "Role updated" });
-  } catch (err) {
-    console.error("updateRole error:", err);
     res.status(500).json({ message: "Server error" });
   }
 }

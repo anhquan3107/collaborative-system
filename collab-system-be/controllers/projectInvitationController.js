@@ -124,7 +124,7 @@ export async function acceptInvitation(req, res) {
     }
 
     await addProjectMember(invitation.project_id, req.user.id, invitation.role);
-    await updateInvitationStatus(token, "accepted");
+    await setInvitationStatusByToken(token, "accepted");
 
     res.json({
       message: "Invitation accepted",

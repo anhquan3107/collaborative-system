@@ -27,9 +27,7 @@ export function getProjectMembers(projectId) {
 export function removeProjectMember(projectId, userId) {
   return apiDelete(paths.projects.memberDetail(projectId, userId));
 }
-export function updateMemberRole(projectId, userId, role) {
-  return apiPut(paths.projects.memberRole(projectId, userId), { role });
-}
+
 export function leaveProject(projectId) {
   return apiDelete(paths.projects.leave(projectId));
 }
