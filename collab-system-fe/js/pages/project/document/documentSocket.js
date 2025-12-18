@@ -1,57 +1,69 @@
-// frontend/js/pages/project/document/socket.js
-import { applyRemotePatch } from "./documentEditor.js";
+// frontend/js/pages/project/document/documentSocket.js
+import { applyRemotePatch, quill, handleRemoteApply, applySnapshot} from "./documentEditor.js";
 import { currentDocId } from "./documentOpen.js";
-import { updateDocumentStatus } from "../utils.js"; 
+import { updateDocumentStatus } from "../utils.js";
 
-let docSocket = null;
+let socket = null;
 
 export function initDocumentSocket() {
-    docSocket = io();
+    socket = io();
 
-    docSocket.on("connect", () => {
+    socket.on("connect", () => {
         updateDocumentStatus("Connected", "text-success");
-        if (currentDocId) {
-            docSocket.emit("join_document", { docId: currentDocId });
-        }
     });
 
-    docSocket.on("disconnect", () => {
+    socket.on("disconnect", () => {
         updateDocumentStatus("Disconnected", "text-danger");
     });
 
-    docSocket.on("connect_error", (error) => {
-        console.error("❌ Socket connection error:", error);
-        updateDocumentStatus("Connection Failed", "text-danger");
-    });
-
-    docSocket.on("document_patch", ({ docId, patch, fromSocketId }) => {
+    socket.on("document_patch", ({ docId, patch, fromSocketId }) => {
         if (docId !== currentDocId) return;
-        if (fromSocketId === docSocket.id) return;
+        if (fromSocketId === socket.id) return; 
         applyRemotePatch(patch);
     });
 
-    docSocket.on("document_saved", ({ docId, updatedAt }) => {
+    socket.on("document_saved", ({ docId, updatedAt }) => {
         if (docId !== currentDocId) return;
         document.getElementById("lastSaved").textContent =
             "Last saved: " + new Date(updatedAt).toLocaleString();
     });
+
+    socket.on("document_snapshot", ({ docId, content }) => {
+    if (docId !== currentDocId) return;
+    applySnapshot(content);
+    });
+
 }
 
-export function emitPatch(patch) {
-    if (!docSocket || !currentDocId) return;
+/* ======================
+   EXPORTED EMITTERS
+====================== */
 
-    docSocket.emit("document_patch", {
-        docId: currentDocId,
-        patch,
-        fromSocketId: docSocket.id
+export function emitJoinDocument(docId, content) {
+    if (!socket) return;
+    socket.emit("join_document", { docId, content });
+}
+
+
+export function emitLeaveDocument(docId) {
+    if (!socket) return;
+    socket.emit("leave_document", { docId });
+}
+
+export function emitDocumentPatch(docId, patch) {
+    if (!socket || !docId) return;
+
+    socket.emit("edit_document", {
+        docId,
+        patch
     });
 }
 
-export function saveDocument(content) {
-    if (!docSocket || !currentDocId) return;
+export function emitSaveDocument(docId, content) {
+    if (!socket || !docId) return;
 
-    docSocket.emit("save_document", {
-        docId: currentDocId,
+    socket.emit("save_document", {
+        docId,
         content
     });
 }

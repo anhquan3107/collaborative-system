@@ -93,7 +93,7 @@ function renderPending() {
 }
 
 async function handleCancel(e) {
-    const id = e.target.dataset.id;
+    const id = e.target.dataset.invitationId;
     if (!confirm("Are you sure you want to cancel this invitation?")) return;
     
     try {

@@ -3,6 +3,7 @@ import { saveDocument } from "../../../../api/document.js";
 import { currentDocId } from "./documentOpen.js";
 import { projectId } from "../projectWorkspace.js";
 import { notyf } from "../../../../vendor/utils/notify.js";
+import { emitDocumentPatch, emitSaveDocument } from "./documentSocket.js";
 
 export let quill = null;
 let saveTimer = null;
@@ -38,14 +39,12 @@ function setupEditorSaveListeners() {
 export function handleRemoteApply(delta, oldDelta, source) {
     if (source !== "user" || isReceivingRemote) return;
 
-    window.docSocket?.emit("edit_document", {
-        docId: currentDocId,
-        patch: delta,
-    });
+    emitDocumentPatch(currentDocId, delta);
 
     clearTimeout(saveTimer);
     saveTimer = setTimeout(saveCurrentDocument, 1500);
 }
+
 
 export async function saveCurrentDocument() {
     if (!currentDocId) return;
@@ -55,14 +54,10 @@ export async function saveCurrentDocument() {
     try {
         await saveDocument(projectId, currentDocId, content);
 
-        window.docSocket?.emit("save_document", {
-            docId: currentDocId,
-            content,
-        });
+        emitSaveDocument(currentDocId, content);
 
         document.getElementById("lastSaved").textContent =
             "Last saved: " + new Date().toLocaleString();
-
     } catch (err) {
         console.error(err);
         notyf.error("Save failed!");
@@ -76,4 +71,13 @@ export function applyRemotePatch(patch) {
     } finally {
         setTimeout(() => (isReceivingRemote = false), 100);
     }
+}
+
+export function applySnapshot(fullDelta) {
+  try {
+    isReceivingRemote = true;
+    quill.setContents(fullDelta);
+  } finally {
+    setTimeout(() => (isReceivingRemote = false), 100);
+  }
 }

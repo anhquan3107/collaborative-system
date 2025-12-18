@@ -67,10 +67,7 @@ export async function getProjectInvitations(projectId) {
   return rows;
 }
 
-/**
- * Update invitation status
- */
-export async function updateInvitationStatus(token, status) {
+export async function setInvitationStatusByToken(token, status) {
   const [result] = await db.query(
     "UPDATE project_invitations SET status = ? WHERE token = ?",
     [status, token]
@@ -78,13 +75,10 @@ export async function updateInvitationStatus(token, status) {
   return result.affectedRows > 0;
 }
 
-/**
- * Cancel an invitation
- */
-export async function cancelInvitation(invitationId, inviterId) {
+export async function setInvitationStatusById(invitationId, status, inviterId) {
   const [result] = await db.query(
-    "UPDATE project_invitations SET status = 'cancelled' WHERE id = ? AND inviter_id = ?",
-    [invitationId, inviterId]
+    "UPDATE project_invitations SET status = ? WHERE id = ? AND inviter_id = ?",
+    [status, invitationId, inviterId]
   );
   return result.affectedRows > 0;
 }

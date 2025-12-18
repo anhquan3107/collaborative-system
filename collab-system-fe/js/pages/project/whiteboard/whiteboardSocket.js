@@ -23,9 +23,28 @@ export function initWhiteboardSocket() {
         updateWhiteboardStatus("Connection Failed", "text-danger");
     });
 
-    socket.on("whiteboard_stroke", ({ boardId, stroke }) => {
+    socket.on("whiteboard_point", ({ boardId, strokeId, point, color, size }) => {
         if (boardId !== currentBoardId.value) return;
-        strokes.push(stroke);
+
+        let stroke = strokes.find(s => s.id === strokeId);
+
+        if (!stroke) {
+            stroke = {
+                id: strokeId,
+                color,
+                size,
+                points: []
+            };
+            strokes.push(stroke);
+        }
+
+        stroke.points.push(point);
+        redrawCanvas();
+    });
+    
+    socket.on("whiteboard_snapshot", (snapshot) => {
+        strokes.length = 0;
+        strokes.push(...snapshot);
         redrawCanvas();
     });
 
@@ -37,14 +56,27 @@ export function initWhiteboardSocket() {
     });
 }
 
-export function broadcastStroke(stroke) {
-    if (!currentBoardId.value || !socket) return;
-    
-    socket.emit("whiteboard_stroke", {
-        boardId: currentBoardId.value,
-        stroke,
+export function broadcastPoint({ boardId, strokeId, point, color, size }) {
+    if (!socket || !boardId) return;
+
+    socket.emit("whiteboard_point", {
+        boardId,
+        strokeId,
+        point,
+        color,
+        size
     });
 }
+
+export function broadcastStrokeEnd({ boardId, strokeId }) {
+    if (!socket || !boardId) return;
+
+    socket.emit("whiteboard_stroke_end", {
+        boardId,
+        strokeId
+    });
+}
+
 
 export function emitSave(content) {
     if (!currentBoardId.value || !socket) return;

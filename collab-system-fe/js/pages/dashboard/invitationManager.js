@@ -1,5 +1,6 @@
 // frontend/js/pages/invitation/invitationManager.js
 import { getPendingInvitations, acceptInvitation, declineInvitation } from "../../../api/invitation.js";
+import { notyf } from "../../../vendor/utils/notify.js";
 
 let pendingInvitations = [];
 
@@ -79,10 +80,10 @@ async function handleAcceptInvitation(token) {
         await acceptInvitation(token);
         pendingInvitations = pendingInvitations.filter(inv => inv.token !== token);
         updateInvitationUI();
-        alert('Invitation accepted!');
+        notyf.success('Invitation accepted!');
         window.dispatchEvent(new Event('project:joined'));
     } catch (err) {
-        alert('Failed to accept invitation: ' + err.message);
+        notyf.error('Failed to accept invitation: ' + err.message);
     }
 }
 
@@ -91,18 +92,8 @@ async function handleDeclineInvitation(token) {
         await declineInvitation(token);
         pendingInvitations = pendingInvitations.filter(inv => inv.token !== token);
         updateInvitationUI();
-        alert('Invitation declined.');
+        notyf.success('Invitation declined.');
     } catch (err) {
-        alert('Failed to decline invitation: ' + err.message);
+        notyf.error('Failed to decline invitation: ' + err.message);
     }
 }
-
-// Load invitations when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('token')) {
-        loadInvitations();
-        
-        // Refresh invitations every 30 seconds
-        setInterval(loadInvitations, 30000);
-    }
-});
