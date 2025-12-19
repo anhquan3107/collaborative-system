@@ -2,7 +2,6 @@
 import {
   getProjectMembers,
   removeProjectMember,
-  updateMemberRole,
   leaveProject,
 } from "../../../api/project.js";
 
