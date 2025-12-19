@@ -6,8 +6,8 @@ import { paths } from "../constants/paths.js";
  * Send invitation to project
  * POST /api/projects/:projectId/invitations
  */
-export function inviteToProject(projectId, email, role) {
-  return apiPost(paths.invitations.project(projectId), { email, role });
+export function inviteToProject(projectId, email) {
+  return apiPost(paths.invitations.project(projectId), { email});
 }
 
 /**

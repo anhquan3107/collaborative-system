@@ -35,7 +35,12 @@ export async function openWhiteboard(boardId, title) {
             try {
                 const parsedStrokes = JSON.parse(result.whiteboard.data);
                 if (Array.isArray(parsedStrokes)) {
-                    strokes.push(...parsedStrokes);
+                    parsedStrokes.forEach(s => {
+                        strokes.push({
+                            ...s,
+                            mode: s.mode || "draw"   // 🔥 FIX
+                        });
+                    });
                 }
             } catch (parseError) {
                 console.error("Error parsing whiteboard strokes:", parseError);

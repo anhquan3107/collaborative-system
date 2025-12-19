@@ -1,6 +1,8 @@
 import { currentBoardId, strokes, redrawCanvas, setCanvasContext } from "./whiteboardState.js";
 import { queueWhiteboardSave } from "./whiteboardSave.js";
 import { broadcastPoint, broadcastStrokeEnd } from "./whiteboardSocket.js";
+import { getToolState } from "./whiteboardEditor.js";
+
 
 let drawing = false;
 let currentStroke = null;
@@ -29,10 +31,13 @@ function resizeCanvas() {
 function startDrawing(e) {
     drawing = true;
 
+    const { tool, color, size } = getToolState();
+
     currentStroke = {
         id: crypto.randomUUID(),
-        color: "#000000",
-        size: 4,
+        color,
+        size,
+        mode: tool === "eraser" ? "erase" : "draw",
         points: []
     };
 
@@ -50,7 +55,8 @@ function draw(e) {
         strokeId: currentStroke.id,
         point,
         color: currentStroke.color,
-        size: currentStroke.size
+        size: currentStroke.size,
+        mode: currentStroke.mode 
     });
 
     redrawCanvas();

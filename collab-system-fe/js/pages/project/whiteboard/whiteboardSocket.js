@@ -1,6 +1,7 @@
 // frontend/js/pages/project/whiteboard/whiteboardSocket.js
 import { currentBoardId, strokes, redrawCanvas } from "./whiteboardState.js";
 import { updateWhiteboardStatus} from "../utils.js";
+import { queueWhiteboardSave } from "./whiteboardSave.js";
 
 let socket = null;
 
@@ -23,22 +24,22 @@ export function initWhiteboardSocket() {
         updateWhiteboardStatus("Connection Failed", "text-danger");
     });
 
-    socket.on("whiteboard_point", ({ boardId, strokeId, point, color, size }) => {
+    socket.on("whiteboard_point", ({ boardId, strokeId, point, color, size, mode }) => {
         if (boardId !== currentBoardId.value) return;
 
         let stroke = strokes.find(s => s.id === strokeId);
 
         if (!stroke) {
-            stroke = {
-                id: strokeId,
-                color,
-                size,
-                points: []
-            };
+            stroke = { id: strokeId, color, size, mode, points: [] };
             strokes.push(stroke);
         }
 
         stroke.points.push(point);
+        redrawCanvas();
+    });
+
+     socket.on("whiteboard_clear", () => {
+        strokes.length = 0;
         redrawCanvas();
     });
     
@@ -56,7 +57,7 @@ export function initWhiteboardSocket() {
     });
 }
 
-export function broadcastPoint({ boardId, strokeId, point, color, size }) {
+export function broadcastPoint({ boardId, strokeId, point, color, size, mode }) {
     if (!socket || !boardId) return;
 
     socket.emit("whiteboard_point", {
@@ -64,9 +65,11 @@ export function broadcastPoint({ boardId, strokeId, point, color, size }) {
         strokeId,
         point,
         color,
-        size
+        size,
+        mode
     });
 }
+
 
 export function broadcastStrokeEnd({ boardId, strokeId }) {
     if (!socket || !boardId) return;
@@ -91,4 +94,17 @@ export function joinWhiteboard(boardId) {
     if (socket) {
         socket.emit("join_whiteboard", { whiteboardId: boardId });
     }
+}
+
+export function clearBoardRealtime() {
+    if (!currentBoardId.value || !socket) return;
+
+    strokes.length = 0;
+    redrawCanvas();
+
+    socket.emit("whiteboard_clear", {
+        boardId: currentBoardId.value
+    });
+
+    queueWhiteboardSave();
 }

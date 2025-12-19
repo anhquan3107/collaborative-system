@@ -37,7 +37,7 @@ export function initWhiteboardSocket(io) {
         /**
          * 3. LIVE DRAWING EVENT
          **/
-        socket.on("whiteboard_point", ({ boardId, strokeId, point, color, size }) => {
+        socket.on("whiteboard_point", ({ boardId, strokeId, point, color, size, mode }) => {
             if (!liveWhiteboards.has(boardId)) {
                 liveWhiteboards.set(boardId, []);
             }
@@ -46,7 +46,7 @@ export function initWhiteboardSocket(io) {
             let stroke = strokes.find(s => s.id === strokeId);
 
             if (!stroke) {
-                stroke = { id: strokeId, color, size, points: [] };
+                stroke = { id: strokeId, color, size, mode, points: [] };
                 strokes.push(stroke);
             }
 
@@ -57,7 +57,8 @@ export function initWhiteboardSocket(io) {
                 strokeId,
                 point,
                 color,
-                size
+                size,
+                mode
             });
         });
 
@@ -99,7 +100,11 @@ export function initWhiteboardSocket(io) {
                 console.error("❌ save_whiteboard error:", err);
             }
         });
-
+        
+        socket.on("whiteboard_clear", ({ boardId }) => {
+            liveWhiteboards.set(boardId, []);
+            io.to(`whiteboard_${boardId}`).emit("whiteboard_clear");
+        });        
         /**
          * 6. DISCONNECT
          */
