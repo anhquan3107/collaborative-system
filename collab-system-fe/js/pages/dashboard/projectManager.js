@@ -118,15 +118,28 @@ function setupDeleteHandler() {
 // ------------------------------
 async function loadProjects() {
   const data = await getProjects();
+  renderProjectGrid(data.projects);
+}
+
+async function loadStats() {
+  const el = document.getElementById("statTotalProjects");
+  const data = await getProjectCount();
+  el.textContent = data.count;
+}
+
+// projectManager.js
+
+export function renderProjectGrid(projects) {
   projectList.innerHTML = "";
 
-  if (!data.projects.length) {
+  if (!projects.length) {
     projectList.innerHTML = `
-      <div class='col-12 text-center text-muted'>No projects yet.</div>`;
+      <div class='col-12 text-center text-muted'>No projects found.</div>
+    `;
     return;
   }
 
-  data.projects.forEach((project) => {
+  projects.forEach((project) => {
     projectList.innerHTML += `
       <div class="col-lg-3 col-sm-6 mb-4">
         <div class="card shadow-sm h-100 project-card">
@@ -146,12 +159,8 @@ async function loadProjects() {
             </div>
           </div>
         </div>
-      </div>`;
+      </div>
+    `;
   });
 }
 
-async function loadStats() {
-  const el = document.getElementById("statTotalProjects");
-  const data = await getProjectCount();
-  el.textContent = data.count;
-}

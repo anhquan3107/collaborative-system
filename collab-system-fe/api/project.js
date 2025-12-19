@@ -2,8 +2,13 @@ import { apiGet, apiPost, apiDelete, apiPut } from "./apiClient.js";
 import { paths } from "../constants/paths.js";
 
 // Get project list
-export function getProjects() {
-  return apiGet(paths.projects.list);
+export function getProjects(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  const url = query
+    ? `${paths.projects.list}?${query}`
+    : paths.projects.list;
+
+  return apiGet(url);
 }
 
 // Create new project

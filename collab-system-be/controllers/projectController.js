@@ -3,13 +3,15 @@ import { getProjectsByUser, createProject, deleteProject, getProjectCount } from
 // GET /api/projects
 export async function listProjects(req, res) {
   try {
-    const projects = await getProjectsByUser(req.user.id);
+    const search = req.query.search || "";
+    const projects = await getProjectsByUser(req.user.id, search);
     res.json({ projects });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to load projects" });
   }
 }
+
 
 // POST /api/projects
 export async function addProject(req, res) {

@@ -9,6 +9,7 @@ import {
 import { loadInvitations } from "./invitationManager.js";
 import { notyf } from "../../../vendor/utils/notify.js";
 import { initMessageManager, clearRecentMessages } from "./messageManager.js";
+import { initSearchManager } from "./searchManager.js";
 
 
 window.reloadDashboard = reloadDashboard;
@@ -31,6 +32,7 @@ window.openProject = openProject;
     //  Load dashboard only after user is authenticated
     initProjectManager();
     initMessageManager();
+    initSearchManager();
     reloadDashboard();
     setInterval(loadInvitations, 30000);
     
@@ -63,7 +65,7 @@ function setupUserUI(user) {
 // LOGOUT HANDLER
 // ------------------------------
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
-  localStorage.removeItem("token");
+  localStorage.removeItem("token"); 
   clearRecentProject(); 
   clearRecentMessages(); 
   window.location.href = "index.html";

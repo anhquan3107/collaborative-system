@@ -4,15 +4,19 @@ import { isProjectMember } from "./projectMemberModel.js";
 /**
  * Get all projects that a user is a member of
  */
-export async function getProjectsByUser(userId) {
+export async function getProjectsByUser(userId, search = "") {
+  const searchSql = `%${search}%`;
+
   const [rows] = await db.query(
-    `SELECT DISTINCT p.* 
+    `SELECT DISTINCT p.*
      FROM projects p
      LEFT JOIN project_members pm ON p.id = pm.project_id
-     WHERE p.user_id = ? OR pm.user_id = ?
+     WHERE (p.user_id = ? OR pm.user_id = ?)
+       AND p.name LIKE ?
      ORDER BY p.created_at DESC`,
-    [userId, userId]
+    [userId, userId, searchSql]
   );
+
   return rows;
 }
 
