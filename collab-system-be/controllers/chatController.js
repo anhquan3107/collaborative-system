@@ -6,7 +6,6 @@ export async function getMessages(req, res) {
   try {
     const projectId = Number(req.params.projectId);
     
-    // Security Check
     const hasAccess = await isProjectMember(projectId, req.user.id);
     if (!hasAccess) {
       return res.status(403).json({ message: "Access denied" });

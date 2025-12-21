@@ -23,7 +23,7 @@ import { notyf } from "../../../vendor/utils/notify.js";
 // ------------------------------
 export async function loadAllFiles() {
     try {
-        console.log("🔄 Loading files for project:", projectId);
+        console.log("Loading files for project:", projectId);
         
         // Load both documents and whiteboards
         const [docsResult, boardsResult] = await Promise.all([
@@ -31,21 +31,17 @@ export async function loadAllFiles() {
             listWhiteboards(projectId) 
         ]);
         
-        console.log("📄 Documents API Response:", docsResult);
-        console.log("🎨 Whiteboards API Response:", boardsResult);
         
         // FIX: Use correct API response structures
         const documents = docsResult.documents || docsResult.document || [];
         const whiteboards = boardsResult.whiteboards || boardsResult.whiteboard || [];
         
-        console.log("📝 Documents found:", documents.length);
-        console.log("🖌️ Whiteboards found:", whiteboards.length);   
         
         // Call renderFileList with both parameters
         renderFileList(documents, whiteboards);
 
     } catch (err) {
-        console.error("❌ Failed to load files:", err);
+        console.error("Failed to load files:", err);
         document.getElementById("fileList").innerHTML =
             `<div class="text-danger p-3">Failed to load files: ${err.message}</div>`;
     }
@@ -58,7 +54,7 @@ export function renderFileList(documents, whiteboards) {
     const fileList = document.getElementById("fileList");
     
     if (!fileList) {
-        console.error("❌ fileList element not found!");
+        console.error("fileList element not found!");
         return;
     }
 
@@ -120,7 +116,7 @@ export function renderFileList(documents, whiteboards) {
 
     fileList.innerHTML = html;
     attachFileListeners();
-    console.log("✅ File list rendered with", documents.length, "documents and", whiteboards.length, "whiteboards");
+    console.log("File list rendered with", documents.length, "documents and", whiteboards.length, "whiteboards");
 }
 
 // ------------------------------
@@ -128,7 +124,7 @@ export function renderFileList(documents, whiteboards) {
 // ------------------------------
 function attachFileListeners() {
     const fileItems = document.querySelectorAll(".file-item");
-    console.log("🔗 Attaching listeners to", fileItems.length, "file items");
+    console.log("Attaching listeners to", fileItems.length, "file items");
     
     fileItems.forEach(item => {
         item.addEventListener("click", () => {
@@ -136,7 +132,7 @@ function attachFileListeners() {
             const id = Number(item.dataset.id);
             const title = item.dataset.title;
 
-            console.log("📝 Opening:", { type, id, title });
+            console.log("Opening:", { type, id, title });
 
             if (type === "document") {
                 openDocument(id, title);
@@ -151,7 +147,7 @@ function attachFileListeners() {
 // Highlight active file
 // ------------------------------
 export function updateActiveFile(type, id) {
-    console.log("🎯 Updating active file:", type, id);
+    console.log(" Updating active file:", type, id);
     
     document.querySelectorAll(".file-item").forEach(item => {
         const isMatch = (

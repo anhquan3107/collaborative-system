@@ -84,7 +84,7 @@ function initSocket() {
   socket = io();
 
   socket.on("connect", () => {
-    console.log("🔌 Connected:", socket.id);
+    console.log(" Connected:", socket.id);
 
     socket.emit("join_video_room", { projectId });
     socket.emit("video_ready", { projectId });
@@ -100,14 +100,14 @@ function initSocket() {
 
   // Peer camera fully ready
   socket.on("peer_ready", ({ socketId }) => {
-    console.log("🎥 Peer ready:", socketId);
+    console.log("Peer ready:", socketId);
     peerIsReady = true;
     if (socketId) peerSocketId = socketId;
     attemptStartCall();
   });
 
   socket.on("peer_call_ended", () => {
-    console.log("⚠️ Peer ended the call");
+    console.log("Peer ended the call");
 
     updateStatus("error", "Call Ended");
 
@@ -139,7 +139,7 @@ function initSocket() {
   });
 
   socket.on("peer_reset_call", async () => {
-    console.log("🔄 Peer reloaded or disconnected — resetting call");
+    console.log("Peer reloaded or disconnected — resetting call");
 
     updateStatus("warning", "Peer reconnecting...");
 
@@ -161,7 +161,7 @@ function initSocket() {
   });
 
   socket.on("force_ready_resend", () => {
-    console.log("🔁 Server requested re-send of ready state");
+    console.log("Server requested re-send of ready state");
 
     if (localStream && localStream.getTracks().length > 0) {
         socket.emit("video_ready", { projectId });

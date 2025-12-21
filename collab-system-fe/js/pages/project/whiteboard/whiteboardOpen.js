@@ -13,7 +13,7 @@ export async function openWhiteboard(boardId, title) {
         // Get projectId from URL
         await saveCurrentWhiteboard();
         const result = await getWhiteboard(projectId, boardId);
-        console.log("📥 Whiteboard data:", result);
+        console.log("Whiteboard data:", result);
 
         currentBoardId.value = boardId;
         strokes.length = 0; // Clear current strokes
@@ -38,7 +38,7 @@ export async function openWhiteboard(boardId, title) {
                     parsedStrokes.forEach(s => {
                         strokes.push({
                             ...s,
-                            mode: s.mode || "draw"   // 🔥 FIX
+                            mode: s.mode || "draw"   
                         });
                     });
                 }
@@ -57,7 +57,7 @@ export async function openWhiteboard(boardId, title) {
         joinWhiteboard(boardId);
         updateActiveFile("whiteboard", boardId);
 
-        console.log("✅ Whiteboard opened successfully:", boardId, title);
+        console.log("Whiteboard opened successfully:", boardId, title);
 
     } catch (err) {
         console.error("Failed to open whiteboard:", err);

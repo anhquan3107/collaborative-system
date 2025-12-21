@@ -11,9 +11,9 @@ const PORT = process.env.PORT;
 
 try {
   const [rows] = await pool.query("SELECT 1 + 1 AS result");
-  console.log("✅ MySQL connected successfully:", rows[0].result);
+  console.log("MySQL connected successfully:", rows[0].result);
 } catch (err) {
-  console.error("❌ Database connection failed:", err);
+  console.error("Database connection failed:", err);
 }
 
 // --- Setup HTTP + Socket.IO ---
@@ -31,4 +31,4 @@ initDocumentSocket(io);
 initVideoSocket(io);
 initWhiteboardSocket(io); 
 
-server.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

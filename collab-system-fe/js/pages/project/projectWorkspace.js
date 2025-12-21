@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 document.getElementById("backToDashboardBtn")
         .addEventListener("click", backToDashboard);
 
-    console.log("🚀 Initializing workspace for project:", projectId, projectName);
+    console.log("Initializing workspace for project:", projectId, projectName);
 
     document.getElementById("projectName").textContent = projectName;
 
@@ -50,5 +50,5 @@ document.getElementById("backToDashboardBtn")
 
     showPlaceholder();
     
-    console.log("✅ Workspace initialized with both document and whiteboard support");
+    console.log("Workspace initialized with both document and whiteboard support");
 });

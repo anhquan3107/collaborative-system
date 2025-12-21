@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// 1️⃣ Send OTP
+// Send OTP
 export const sendOtp = async (req, res) => {
     try {
     const { email } = req.body;
@@ -48,7 +48,7 @@ export const sendOtp = async (req, res) => {
     }
 };
 
-// 2️⃣ Verify OTP 
+// Verify OTP 
 export const verifyOtp = (req, res) => {
     const { otp } = req.body;
 
@@ -59,7 +59,7 @@ export const verifyOtp = (req, res) => {
     res.json({ success: false, message: "Invalid OTP" });
 };
 
-// 3️⃣ Reset Password
+// Reset Password
 export const resetPassword = async (req, res) => {
     try {
     const { newPassword } = req.body;

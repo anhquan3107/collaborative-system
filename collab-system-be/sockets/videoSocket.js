@@ -12,7 +12,7 @@ export function initVideoSocket(io) {
       const room = `video_project_${projectId}`;
       socket.join(room);
 
-      console.log(`🎥 ${socket.id} joined ${room}`);
+      console.log(`${socket.id} joined ${room}`);
 
       // Get other sockets in the room
       const socketsInRoom = io.sockets.adapter.rooms.get(room);
@@ -106,12 +106,10 @@ export function initVideoSocket(io) {
         }
       });
 
-      // We must find all video rooms this socket belongs to
       socket.rooms.forEach(room => {
         if (room.startsWith("video_project_")) {
-          console.log(`🔄 Resetting call for room ${room} because ${socket.id} left`);
+          console.log(`Resetting call for room ${room} because ${socket.id} left`);
 
-          // Tell the remaining peer to reset their WebRTC state
           socket.to(room).emit("peer_reset_call", {
             from: socket.id
           });

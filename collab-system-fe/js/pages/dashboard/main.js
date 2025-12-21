@@ -88,7 +88,7 @@ export async function reloadDashboard() {
     return;
   }
 
-  console.log("🔄 Reloading dashboard…");
+  console.log("Reloading dashboard…");
 
   try {
     await Promise.all([

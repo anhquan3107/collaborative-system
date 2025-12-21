@@ -29,19 +29,19 @@ export function initMessageManager() {
     socket = io();
 
     socket.on("connect", () => {
-        console.log("📡 MessageManager connected");
+        console.log(" MessageManager connected");
     });
 
     socket.on("new_message_notification", (msg) => {
-        console.log("📩 Dashboard received:", msg);
+        console.log("Dashboard received:", msg);
 
-        // 1️⃣ Show popup
+        // Show popup
         showMessageNotification(msg);
 
-        // 2️⃣ Show inside dropdown list
+        //  Show inside dropdown list
         addMessageToCenter(msg);
 
-        // 3️⃣ Increase unread badge
+        // Increase unread badge
         increaseUnreadBadge();
     });
 }

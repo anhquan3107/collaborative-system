@@ -1,5 +1,7 @@
 import { verifyOtp } from "../../../api/password.js";
 import {notyf} from "../../../vendor/utils/notify.js";
+
+
 document.getElementById("otpForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = document.getElementById("btnVerifyOtp");

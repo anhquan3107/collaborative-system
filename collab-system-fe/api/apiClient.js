@@ -8,11 +8,6 @@ function getToken() {
 // --- Generic GET Request ---
 export async function apiGet(path) {
   const token = getToken();
-  console.log("🔍 API GET Debug:", {
-    path: `${API_BASE}${path}`,
-    hasToken: !!token,
-    token: token ? "***" + token.slice(-10) : "none",
-  });
 
   const res = await fetch(`${API_BASE}${path}`, {
     headers: {

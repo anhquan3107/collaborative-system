@@ -10,7 +10,7 @@ export function initProjectWorkspacePopup() {
     socket = io();
 
     socket.on("connect", () => {
-        console.log("📡 Workspace popup connected");
+        console.log("Workspace popup connected");
     });
 
     // SAME event as dashboard

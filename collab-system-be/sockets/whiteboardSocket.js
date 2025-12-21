@@ -3,7 +3,7 @@ const liveWhiteboards = new Map();
 export function initWhiteboardSocket(io) {
     
     io.on("connection", (socket) => {
-        console.log(`🟢 Whiteboard sockets initialized for: ${socket.id}`);
+        console.log(`Whiteboard sockets initialized for: ${socket.id}`);
 
         /**
          * 1. JOIN WHITEBOARD ROOM
@@ -12,16 +12,16 @@ export function initWhiteboardSocket(io) {
             const room = `whiteboard_${whiteboardId}`;
             socket.join(room);
 
-            console.log(`🎨 Socket ${socket.id} joined ${room}`);
+            console.log(`Socket ${socket.id} joined ${room}`);
 
-            // 🔥 SEND LIVE SNAPSHOT IF EXISTS
+            // END LIVE SNAPSHOT IF EXISTS
             const snapshot = liveWhiteboards.get(whiteboardId);
             if (snapshot) {
                 socket.emit("whiteboard_snapshot", snapshot);
             }
 
             const roomSize = io.sockets.adapter.rooms.get(room)?.size || 0;
-            console.log(`👥 Room ${room} now has ${roomSize} users`);
+            console.log(` Room ${room} now has ${roomSize} users`);
         });
 
 
@@ -86,7 +86,7 @@ export function initWhiteboardSocket(io) {
          */
         socket.on("save_whiteboard", async ({ whiteboardId }) => {
             try {
-                console.log(`💾 Save notification received for whiteboard ${whiteboardId}`);
+                console.log(`Save notification received for whiteboard ${whiteboardId}`);
 
                 const room = `whiteboard_${whiteboardId}`;
 
@@ -95,9 +95,9 @@ export function initWhiteboardSocket(io) {
                     updatedAt: new Date().toISOString()
                 });
 
-                console.log(`✅ Save notification broadcasted for whiteboard ${whiteboardId}`);
+                console.log(`Save notification broadcasted for whiteboard ${whiteboardId}`);
             } catch (err) {
-                console.error("❌ save_whiteboard error:", err);
+                console.error("save_whiteboard error:", err);
             }
         });
         
@@ -109,11 +109,11 @@ export function initWhiteboardSocket(io) {
          * 6. DISCONNECT
          */
         socket.on("disconnect", () => {
-            console.log(`🔴 Socket ${socket.id} disconnected`);
+            console.log(`Socket ${socket.id} disconnected`);
         });
 
         socket.on("error", (error) => {
-            console.error(`❌ Socket error for ${socket.id}:`, error);
+            console.error(`Socket error for ${socket.id}:`, error);
         });
     });
 }

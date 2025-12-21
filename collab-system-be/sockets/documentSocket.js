@@ -4,16 +4,15 @@ const liveDocuments = new Map();
 
 export function initDocumentSocket(io) {
     
-    // ✅ The function sets up its own connection listener
+    // The function sets up its own connection listener
     io.on("connection", (socket) => {
-        console.log(`🟢 Document sockets initialized for: ${socket.id}`);
+        console.log(` Document sockets initialized for: ${socket.id}`);
 
         // 1. Join a document room
         socket.on("join_document", ({ docId, content }) => {
             const room = `document_${docId}`;
             socket.join(room);
 
-            // ✅ Seed baseline only once
             if (!liveDocuments.has(docId)) {
                 if (content) {
                     liveDocuments.set(docId, new Delta(content));
@@ -36,7 +35,7 @@ export function initDocumentSocket(io) {
         socket.on("leave_document", ({ docId }) => {
             const room = `document_${docId}`;
             socket.leave(room);
-            console.log(`🚪 Socket ${socket.id} left ${room}`);
+            console.log(`Socket ${socket.id} left ${room}`);
         });
 
         // 3. Live edit content - BROADCAST TO ALL IN ROOM INCLUDING SENDER
@@ -77,11 +76,11 @@ export function initDocumentSocket(io) {
 
 
         socket.on("disconnect", () => {
-            console.log(`🔴 Socket ${socket.id} disconnected`);
+            console.log(`Socket ${socket.id} disconnected`);
         });
 
         socket.on("error", (error) => {
-            console.error(`❌ Socket error for ${socket.id}:`, error);
+            console.error(`Socket error for ${socket.id}:`, error);
         });
     });
 }

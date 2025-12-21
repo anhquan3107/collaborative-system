@@ -1,5 +1,7 @@
 import { forgotPassword } from "../../../api/password.js";
 import {notyf} from "../../../vendor/utils/notify.js";
+
+
 document.getElementById("forgotForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = document.getElementById("btnSendOtp");
