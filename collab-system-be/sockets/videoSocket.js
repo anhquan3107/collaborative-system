@@ -96,7 +96,7 @@ export function initVideoSocket(io) {
     // HANDLE DISCONNECT / RELOAD
     // =============================
     socket.on("disconnect", () => {
-      console.log(`❌ ${socket.id} disconnected`);
+      console.log(`${socket.id} disconnected`);
 
       // Clean up ready state for all rooms
       roomReadyState.forEach((readySet, room) => {

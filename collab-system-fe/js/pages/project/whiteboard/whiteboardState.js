@@ -21,7 +21,7 @@ export function redrawCanvas() {
 
         ctx.save();
 
-        // 🔥 ERASER SUPPORT
+        // ERASER SUPPORT
         if (stroke.mode === "erase") {
             ctx.globalCompositeOperation = "destination-out";
         } else {
@@ -36,7 +36,7 @@ export function redrawCanvas() {
         ctx.beginPath();
         ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
 
-        // ✅ Keep your smooth quadratic curves
+        //  Keep your smooth quadratic curves
         for (let i = 1; i < stroke.points.length - 1; i++) {
             const prev = stroke.points[i];
             const curr = stroke.points[i + 1];

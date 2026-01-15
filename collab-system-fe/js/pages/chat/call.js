@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("muteBtn").addEventListener("click", toggleMute);
   document.getElementById("cameraBtn").addEventListener("click", toggleVideo);
 
-  // 1️⃣ Load Camera First
+  // Load Camera First
 await startLocalVideo();  // request camera
 // Wait until video is really playing
 await new Promise(resolve => {
@@ -57,7 +57,7 @@ await new Promise(resolve => {
 });
 iAmReady = true;
 
-  // 2️⃣ Then connect socket
+  // Then connect socket
   initSocket();
 });
 
@@ -92,7 +92,7 @@ function initSocket() {
 
   // Peer entered the call room
   socket.on("peer_joined", ({ socketId }) => {
-    console.log("👤 Peer joined:", socketId);
+    console.log(" Peer joined:", socketId);
     peerJoined = true;
     peerSocketId = socketId;
     attemptStartCall();
@@ -183,7 +183,7 @@ function attemptStartCall() {
   // Dynamically decide: higher socket ID creates the offer
   const shouldCreateOffer = socket.id > peerSocketId;
 
-  console.log(`🎉 BOTH READY → ${shouldCreateOffer ? "Creating offer" : "Waiting for offer"}`);
+  console.log(`BOTH READY → ${shouldCreateOffer ? "Creating offer" : "Waiting for offer"}`);
   
   if (shouldCreateOffer) {
     createOffer();
